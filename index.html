@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>어바웃피싱 포인트맵</title>
+<!-- ★ 카카오맵 연동 -->
+<script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=74eb939f1bcf90f450e7b1c3055eb904&libraries=services"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+:root{--blue:#1A6BFF;--text:#1C1C1E;--sub:#6C6C70;--muted:#AEAEB2;--g1:#F5F5F7;--g2:#E5E5EA;}
+html,body{height:100%;font-family:'Noto Sans KR',-apple-system,sans-serif;overflow:hidden;}
+body{background:#1a1a2e;display:flex;justify-content:center;align-items:center;min-height:100vh;}
+@media(max-width:430px){body{background:#fff;align-items:flex-start;}}
+
+.phone{width:390px;height:844px;background:#fff;border-radius:44px;overflow:hidden;position:relative;box-shadow:0 40px 120px rgba(0,0,0,.9);flex-shrink:0;}
+@media(max-width:430px){.phone{border-radius:0;width:100vw;height:100dvh;box-shadow:none;}}
+
+/* Status bar */
+.sb{height:44px;padding:0 20px;display:flex;justify-content:space-between;align-items:center;font-size:15px;font-weight:600;position:absolute;top:0;left:0;right:0;z-index:100;pointer-events:none;color:#1C1C1E;}
+.sb-r{display:flex;align-items:center;gap:5px;font-size:13px;}
+.bat{width:24px;height:12px;border:1.5px solid currentColor;border-radius:3px;padding:1.5px;display:inline-flex;}
+.bat-fill{width:80%;height:100%;background:currentColor;border-radius:1px;}
+
+/* Map */
+#map{position:absolute;inset:0;z-index:1;}
+
+/* Top bar */
+.top-bar{position:absolute;top:44px;left:0;right:0;padding:10px 14px 8px;z-index:20;display:flex;flex-direction:column;gap:8px;}
+.map-title{font-size:22px;font-weight:800;color:#1C1C1E;}
+.map-title em{color:var(--blue);font-style:normal;}
+.search-bar{display:flex;align-items:center;gap:8px;background:#fff;border-radius:12px;padding:11px 14px;box-shadow:0 4px 20px rgba(0,0,0,.15);border:1px solid rgba(0,0,0,.06);}
+.search-bar input{flex:1;border:none;outline:none;font-family:inherit;font-size:15px;color:var(--text);}
+.search-bar input::placeholder{color:var(--muted);}
+
+/* Side buttons */
+.side-btns{position:absolute;right:12px;top:156px;display:flex;flex-direction:column;gap:8px;z-index:20;}
+.sbn{width:40px;height:40px;background:#fff;border-radius:10px;box-shadow:0 2px 10px rgba(0,0,0,.14);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .15s;}
+.sbn:active{background:var(--g1);}
+.sbn svg{width:20px;height:20px;stroke:var(--sub);fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;}
+
+/* CTA */
+.cta{position:absolute;left:14px;right:14px;bottom:80px;background:linear-gradient(135deg,#0d1f3c,#1a3a6b);border-radius:14px 14px 0 0;padding:14px;display:flex;align-items:center;gap:12px;z-index:30;cursor:pointer;transition:opacity .3s,transform .3s;}
+.cta-ico{width:42px;height:42px;flex-shrink:0;background:rgba(255,255,255,.12);border-radius:10px;display:flex;align-items:center;justify-content:center;}
+.cta-ico svg{width:22px;height:22px;stroke:#fff;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+.cta-txt{flex:1;}
+.cta-txt b{display:block;color:#fff;font-size:13px;font-weight:700;margin-bottom:2px;}
+.cta-txt span{color:rgba(255,255,255,.7);font-size:12px;}
+.cta-x{width:26px;height:26px;flex-shrink:0;background:rgba(255,255,255,.15);border-radius:50%;display:flex;align-items:center;justify-content:center;}
+.cta-x svg{width:11px;height:11px;stroke:#fff;stroke-width:2.5;stroke-linecap:round;}
+
+/* Bottom nav */
+.bnav{position:absolute;bottom:0;left:0;right:0;height:80px;background:#fff;display:flex;align-items:center;padding-bottom:16px;z-index:50;}
+.bnav::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:var(--g2);}
+.nitem{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--muted);font-size:10px;font-weight:500;cursor:pointer;transition:color .2s;}
+.nitem.on{color:var(--blue);}
+.nitem svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;}
+
+/* Result sheet */
+.sheet{position:absolute;bottom:0;left:0;right:0;background:#fff;border-radius:20px 20px 0 0;z-index:35;padding-bottom:80px;max-height:55%;display:flex;flex-direction:column;transform:translateY(100%);transition:transform .35s cubic-bezier(.4,0,.2,1);box-shadow:0 -4px 24px rgba(0,0,0,.1);}
+.sheet.open{transform:translateY(0);}
+.pull{padding:10px 0 4px;display:flex;justify-content:center;flex-shrink:0;}
+.pull-bar{width:36px;height:4px;background:var(--g2);border-radius:2px;}
+.sheet-list{overflow-y:auto;flex:1;}
+.ritem{display:flex;align-items:center;gap:12px;padding:11px 16px;border-bottom:1px solid var(--g1);cursor:pointer;}
+.ritem:active{background:var(--g1);}
+.rthumb{width:56px;height:56px;border-radius:10px;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
+.rthumb svg{width:26px;height:26px;stroke:rgba(255,255,255,.85);fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;}
+.rinfo{flex:1;min-width:0;}
+.rname{font-size:15px;font-weight:700;color:var(--text);}
+.rname span{font-size:12px;color:var(--sub);font-weight:400;}
+.rsub{font-size:12px;color:var(--sub);margin-top:2px;}
+.rtag{font-size:11px;color:var(--muted);margin-top:2px;}
+.fav{width:34px;height:34px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;}
+.fav svg{width:20px;height:20px;stroke:var(--muted);fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;transition:all .2s;}
+.fav.on svg{stroke:var(--blue);fill:var(--blue);}
+
+/* Panel */
+.panel{position:absolute;inset:0;background:#fff;z-index:80;transform:translateX(100%);transition:transform .33s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;overflow:hidden;}
+.panel.open{transform:translateX(0);}
+.pnav{height:88px;padding:44px 14px 8px;display:flex;align-items:flex-end;justify-content:space-between;position:absolute;top:0;left:0;right:0;z-index:5;background:#fff;}
+.pback{width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;}
+.pback svg{width:22px;height:22px;stroke:var(--text);fill:none;stroke-width:2;stroke-linecap:round;}
+.pacts{display:flex;gap:6px;}
+.pact{width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;}
+.pact svg{width:20px;height:20px;stroke:var(--text);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+.pscroll{flex:1;overflow-y:auto;padding-bottom:80px;margin-top:88px;}
+.carousel{display:flex;overflow-x:auto;scrollbar-width:none;}
+.carousel::-webkit-scrollbar{display:none;}
+.car-slide{flex-shrink:0;width:100%;height:220px;display:flex;align-items:center;justify-content:center;}
+.sec{padding:16px 18px 0;}
+.sec-ttl{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.6px;text-transform:uppercase;padding-bottom:10px;border-bottom:1px solid var(--g1);margin-bottom:12px;}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--g2);border-radius:12px;overflow:hidden;margin-bottom:2px;}
+.gc{background:#fff;padding:12px 6px;text-align:center;}
+.gl{font-size:11px;color:var(--muted);margin-bottom:4px;}
+.gv{font-size:13px;font-weight:700;color:var(--text);}
+.row{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--g1);font-size:14px;}
+.rl{color:var(--muted);}.rv{font-weight:600;color:var(--text);}
+.wrow{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:4px;}
+.wrow::-webkit-scrollbar{display:none;}
+.wc{flex-shrink:0;text-align:center;background:var(--g1);border-radius:8px;padding:8px 10px;min-width:48px;}
+.wt{font-size:11px;color:var(--muted);}.we{font-size:16px;margin:3px 0;}.wv{font-size:12px;font-weight:600;color:var(--text);}
+.divider{height:8px;background:var(--g1);margin:16px 0 0;}
+.chip{display:inline-block;background:var(--g1);border-radius:20px;padding:4px 10px;font-size:12px;color:var(--sub);margin:0 4px 4px 0;}
+.nearby-row{display:flex;gap:10px;overflow-x:auto;scrollbar-width:none;padding:0 18px 4px;}
+.nearby-row::-webkit-scrollbar{display:none;}
+.ncard{flex-shrink:0;width:140px;border-radius:12px;overflow:hidden;border:1px solid var(--g2);cursor:pointer;}
+.ncard-img{height:78px;display:flex;align-items:center;justify-content:center;}
+.ncard-img svg{width:30px;height:30px;stroke:rgba(255,255,255,.85);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;}
+.ncard-info{padding:8px 10px;}
+.ncard-name{font-size:12px;font-weight:600;color:var(--text);}
+.ncard-price{font-size:11px;color:var(--blue);margin-top:2px;}
+.go-btn{display:block;width:calc(100% - 36px);margin:16px 18px 8px;background:var(--blue);color:#fff;border:none;border-radius:13px;padding:17px;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;}
+.kakao-btn{display:flex;align-items:center;gap:8px;padding:11px 14px;background:#FEE500;border-radius:10px;color:#3C1E1E;font-size:13px;font-weight:700;text-decoration:none;margin-bottom:10px;}
+.kl{width:22px;height:22px;border-radius:4px;background:#3C1E1E;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#FEE500;flex-shrink:0;}
+
+/* Boat sheet */
+.overlay{position:absolute;inset:0;background:rgba(0,0,0,0);z-index:70;pointer-events:none;transition:background .3s;}
+.overlay.on{background:rgba(0,0,0,.45);pointer-events:all;}
+.bsheet{position:absolute;bottom:80px;left:0;right:0;background:#fff;border-radius:20px 20px 0 0;z-index:71;padding:0 18px 20px;transform:translateY(110%);transition:transform .35s cubic-bezier(.4,0,.2,1);box-shadow:0 -4px 24px rgba(0,0,0,.15);}
+.bsheet.open{transform:translateY(0);}
+.brow{display:flex;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid var(--g1);}
+.bthumb{width:62px;height:62px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.bthumb svg{width:28px;height:28px;stroke:rgba(255,255,255,.85);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;}
+.bname{font-size:17px;font-weight:700;color:var(--text);}
+.bloc{font-size:13px;color:var(--sub);margin-top:2px;}
+.btmap{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--muted);margin-top:3px;}
+.tmi{width:14px;height:14px;border-radius:3px;background:linear-gradient(135deg,#FEE500,#FF6B35);display:flex;align-items:center;justify-content:center;color:#3C1E1E;font-size:7px;font-weight:800;}
+.bbtns{display:flex;gap:8px;margin-top:4px;}
+.bbtn-o{flex:1;padding:15px;border:1.5px solid var(--g2);border-radius:12px;font-size:14px;font-weight:600;background:#fff;color:var(--text);cursor:pointer;font-family:inherit;}
+.bbtn-f{flex:2;padding:15px;border-radius:12px;font-size:14px;font-weight:700;background:var(--blue);color:#fff;border:none;cursor:pointer;font-family:inherit;}
+
+/* Pref */
+.pref-back{height:44px;padding:0 14px;display:flex;align-items:center;gap:8px;position:absolute;top:0;left:0;right:0;z-index:5;}
+.step-lbl{font-size:14px;color:var(--muted);}
+.pbar{height:4px;background:var(--g2);border-radius:2px;margin:48px 18px 0;overflow:hidden;}
+.pfill{height:100%;background:var(--blue);border-radius:2px;transition:width .4s;}
+.ptitle{font-size:22px;font-weight:800;color:var(--text);padding:20px 18px 6px;}
+.psub{font-size:14px;color:var(--sub);padding:0 18px 20px;line-height:1.6;}
+.psub2{font-size:15px;font-weight:700;color:var(--text);padding:18px 18px 10px;}
+.pref-scroll{overflow-y:auto;flex:1;padding-bottom:84px;}
+.yn{display:flex;gap:10px;padding:0 18px 4px;}
+.yn-btn{flex:1;padding:16px;border-radius:13px;border:2px solid var(--g2);font-size:16px;font-weight:700;cursor:pointer;background:#fff;font-family:inherit;transition:all .2s;}
+.yn-btn.y.on{border-color:var(--blue);background:var(--blue);color:#fff;}
+.yn-btn.n.on{border-color:var(--g2);background:var(--g1);color:var(--sub);}
+.ogrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 18px;}
+.ocard{border:2px solid var(--g2);border-radius:15px;padding:18px 12px;cursor:pointer;text-align:center;background:#fff;transition:all .2s;}
+.ocard.on{border-color:var(--blue);background:rgba(26,107,255,.05);}
+.ocard:active{transform:scale(.97);}
+.oemo{font-size:28px;margin-bottom:8px;}
+.olbl{font-size:14px;font-weight:700;color:var(--text);}
+.odesc{font-size:11px;color:var(--muted);margin-top:3px;}
+.date-chips{display:flex;gap:8px;padding:4px 18px 8px;overflow-x:auto;scrollbar-width:none;}
+.date-chips::-webkit-scrollbar{display:none;}
+.dc{flex-shrink:0;padding:10px 16px;border-radius:20px;border:2px solid var(--g2);cursor:pointer;background:#fff;transition:all .2s;white-space:nowrap;text-align:center;}
+.dc.on{border-color:var(--blue);background:var(--blue);color:#fff;}
+.dc-date{font-size:13px;font-weight:600;}
+.dc-day{font-size:11px;opacity:.75;margin-top:1px;}
+.next-btn{position:absolute;bottom:20px;left:18px;right:18px;background:var(--blue);color:#fff;border:none;border-radius:13px;padding:17px;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;transition:opacity .2s;}
+.next-btn:disabled{opacity:.3;cursor:not-allowed;}
+
+/* Final */
+.plan-scroll{flex:1;overflow-y:auto;padding-bottom:80px;margin-top:44px;}
+.plan-hdr{padding:16px 18px 14px;border-bottom:1px solid var(--g1);}
+.plan-date{font-size:26px;font-weight:800;color:var(--text);}
+.plan-name{font-size:17px;font-weight:700;color:var(--blue);margin-top:4px;}
+.plan-meta{display:flex;align-items:center;gap:6px;margin-top:7px;font-size:13px;color:var(--muted);}
+.kmap-badge{width:22px;height:22px;border-radius:5px;background:#FEE500;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;color:#3C1E1E;}
+.day-ttl{font-size:17px;font-weight:700;padding:14px 18px 6px;}
+.day-tags{display:flex;gap:6px;padding:0 18px 12px;flex-wrap:wrap;}
+.dtag{background:var(--g1);border-radius:20px;padding:5px 12px;font-size:12px;color:var(--sub);}
+.tl{padding:0 18px;}
+.tl-row{display:flex;gap:12px;position:relative;}
+.tl-row:not(:last-child)::after{content:'';position:absolute;left:46px;top:28px;bottom:-6px;border-left:1.5px dashed var(--g2);}
+.tl-time{width:32px;font-size:12px;font-weight:600;color:var(--muted);flex-shrink:0;padding-top:4px;text-align:right;}
+.tl-dot{width:10px;height:10px;border-radius:50%;background:#fff;border:2.5px solid var(--g2);flex-shrink:0;margin-top:5px;}
+.tl-body{flex:1;padding-bottom:18px;}
+.tl-title{font-size:16px;font-weight:600;color:var(--text);}
+.tl-move{font-size:12px;color:var(--muted);margin-top:2px;display:flex;align-items:center;gap:3px;}
+.tl-desc{font-size:13px;color:var(--sub);margin-top:4px;line-height:1.55;}
+.tl-link{font-size:13px;color:var(--blue);margin-top:5px;cursor:pointer;}
+.plan-actions{position:absolute;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--g1);padding:10px 18px 26px;display:flex;gap:10px;}
+.pa{flex:1;padding:14px;border-radius:12px;font-size:15px;font-weight:700;border:none;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;}
+.pa-yes{background:var(--blue);color:#fff;}
+.pa-no{background:var(--g1);color:var(--sub);}
+
+/* Cluster marker */
+.cm{border-radius:50%;background:rgba(70,105,230,.88);border:2.5px solid rgba(255,255,255,.7);color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 14px rgba(70,105,230,.5);cursor:pointer;font-family:'Noto Sans KR',sans-serif;}
+/* Catch marker */
+.dm-wrap{cursor:pointer;}
+.dm{width:36px;height:36px;background:var(--blue);border:2.5px solid #fff;border-radius:50% 50% 50% 4px;transform:rotate(-45deg);box-shadow:0 2px 8px rgba(26,107,255,.5);display:flex;align-items:center;justify-content:center;}
+.dm svg{transform:rotate(45deg);width:18px;height:18px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+/* Boat marker */
+.bm{width:44px;height:44px;background:#1C3A6B;border:2.5px solid rgba(255,255,255,.85);border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 10px rgba(0,0,0,.3);position:relative;cursor:pointer;}
+.bm svg{width:22px;height:22px;stroke:#fff;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+.bm-dot{position:absolute;top:-1px;right:-1px;width:11px;height:11px;background:#FF3B30;border-radius:50%;border:2px solid #fff;}
+
+.toast{position:absolute;top:76px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.8);color:#fff;padding:10px 18px;border-radius:20px;font-size:13px;font-weight:600;z-index:999;opacity:0;transition:opacity .3s;white-space:nowrap;}
+.toast.show{opacity:1;}
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="sb">
+    <span>8:00</span>
+    <div class="sb-r">
+      <svg width="16" height="12" viewBox="0 0 16 12" fill="currentColor"><rect x="0" y="5" width="3" height="7" rx="1"/><rect x="4.5" y="3" width="3" height="9" rx="1"/><rect x="9" y="1" width="3" height="11" rx="1"/><rect x="13.5" y="0" width="2.5" height="12" rx="1"/></svg>
+      <span>5G</span>
+      <div class="bat"><div class="bat-fill"></div></div>
+    </div>
+  </div>
+
+  <div id="map"></div>
+
+  <div class="top-bar">
+    <div class="map-title">포인트맵<em>.</em></div>
+    <div class="search-bar">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#AEAEB2" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input id="searchInput" type="text" placeholder="어종명을 입력해 주세요." autocomplete="off"
+        oninput="G.q=this.value" onkeydown="if(event.key==='Enter')doSearch()">
+    </div>
+  </div>
+
+  <div class="side-btns">
+    <div class="sbn" onclick="toggleFav()">
+      <svg id="fav-svg" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+    </div>
+    <div class="sbn">
+      <svg viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+    </div>
+    <div class="sbn" onclick="resetMap()">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/></svg>
+    </div>
+  </div>
+
+  <div class="cta" id="cta" onclick="quickSearch('볼락')">
+    <div class="cta-ico"><svg viewBox="0 0 24 24"><path d="M18 8c0 0-2-3-7-3C6 5 2 10 2 12c0 2 4 7 9 7 5 0 7-3 7-3"/><path d="M18 8l4-3-1 4 1 4-4-3z"/><circle cx="7.5" cy="11" r="1" fill="rgba(255,255,255,.5)" stroke="none"/></svg></div>
+    <div class="cta-txt"><b>볼락 시즌 시작</b><span>한정수량 볼락좌석 지금 예약하세요.</span></div>
+    <div class="cta-x" onclick="event.stopPropagation();hideCTA()"><svg viewBox="0 0 12 12"><line x1="1" y1="1" x2="11" y2="11"/><line x1="11" y1="1" x2="1" y2="11"/></svg></div>
+  </div>
+
+  <div class="sheet" id="sheet">
+    <div class="pull"><div class="pull-bar"></div></div>
+    <div class="sheet-list" id="sheet-list"></div>
+  </div>
+
+  <div class="bnav">
+    <div class="nitem" onclick="resetMap()">
+      <svg viewBox="0 0 24 24"><path d="M12 3L2 21h20L12 3z"/><path d="M9.5 21l2.5-5.5 2.5 5.5"/><line x1="5.5" y1="15" x2="18.5" y2="15"/></svg><span>홈</span>
+    </div>
+    <div class="nitem on">
+      <svg viewBox="0 0 24 24"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg><span>포인트맵</span>
+    </div>
+    <div class="nitem">
+      <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><polyline points="9 16 11 18 15 14"/></svg><span>예약</span>
+    </div>
+    <div class="nitem">
+      <svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg><span>쇼핑</span>
+    </div>
+    <div class="nitem">
+      <svg viewBox="0 0 24 24"><path d="M18 8c0 0-2-3-7-3C6 5 2 10 2 12c0 2 4 7 9 7 5 0 7-3 7-3"/><path d="M18 8l4-3-1 4 1 4-4-3z"/><circle cx="7.5" cy="11" r="1.2" fill="currentColor" stroke="none"/></svg><span>커뮤니티</span>
+    </div>
+  </div>
+
+  <div class="overlay" id="b-overlay" onclick="closeBoat()"></div>
+  <div class="bsheet" id="bsheet"></div>
+
+  <div class="panel" id="panel-catch">
+    <div class="pnav" style="background:transparent;">
+      <div class="pback" onclick="closePanel('panel-catch')"><svg viewBox="0 0 22 22"><polyline points="14 18 8 11 14 4"/></svg></div>
+      <div class="pacts">
+        <div class="pact"><svg viewBox="0 0 24 24"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg></div>
+        <div class="pact"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="19" cy="12" r="1" fill="currentColor" stroke="none"/></svg></div>
+      </div>
+    </div>
+    <div class="pscroll" id="catch-body"></div>
+  </div>
+
+  <div class="panel" id="panel-pref">
+    <div class="pref-back">
+      <div style="cursor:pointer;" onclick="prefBack()"><svg viewBox="0 0 22 22" width="22" height="22"><polyline points="14 18 8 11 14 4" stroke="var(--text)" stroke-width="2" stroke-linecap="round" fill="none"/></svg></div>
+      <span class="step-lbl" id="step-lbl"></span>
+    </div>
+    <div class="pbar"><div class="pfill" id="pfill"></div></div>
+    <div class="pref-scroll" id="pref-body"></div>
+    <button class="next-btn" id="next-btn" onclick="prefNext()">다음</button>
+  </div>
+
+  <div class="panel" id="panel-final">
+    <div style="position:absolute;top:44px;left:14px;z-index:5;cursor:pointer;" onclick="closePanel('panel-final')">
+      <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><polyline points="14 18 8 11 14 4" stroke="var(--text)" stroke-width="2" stroke-linecap="round"/></svg>
+    </div>
+    <div class="plan-scroll" id="final-body"></div>
+    <div class="plan-actions" id="final-acts"></div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+// ── DATA ─────────────────────────────────────────────────────
+var CATCHES=[
+  {id:1,fish:'전갱이',angler:'옹이아빠',date:'10월 30일',loc:'고흥 영남면',method:'루어낚시',rig:'스피닝베이트',size:'37cm',weight:'1.3kg',count:3,lat:34.593,lng:127.277,tide:'사리',wind:'2.1m/s 북동',bar:'1023.6hpa',wave:'0.3m'},
+  {id:2,fish:'전갱이',angler:'낚시왕',date:'10월 30일',loc:'고흥 영남면',method:'루어낚시',rig:'스피닝베이트',size:'32cm',weight:'0.9kg',count:2,lat:34.573,lng:127.312,starred:true},
+  {id:3,fish:'전갱이',angler:'바다사나이',date:'10월 30일',loc:'고흥 영남면',method:'루어낚시',rig:'스피닝베이트',size:'35cm',weight:'1.1kg',count:5,lat:34.612,lng:127.245},
+  {id:4,fish:'전갱이',angler:'고흥낚시러버',date:'10월 30일',loc:'고흥 영남면',method:'루어낚시',rig:'스피닝베이트',size:'40cm',weight:'1.5kg',count:4,lat:34.558,lng:127.291},
+];
+var BOATS=[
+  {id:1,name:'진도 거금 박프로호',loc:'전라남도 고흥군·신양선착장',fish:'광어,우럭,참돔',hrs:'05:00~15:30',price:110000,lat:34.581,lng:127.263,rest:13,hotel:5,sight:2},
+  {id:2,name:'고흥 뱃놀이호',loc:'전라남도 고흥군·고흥선착장',fish:'전갱이,부시리,방어',hrs:'06:00~16:00',price:90000,lat:34.603,lng:127.298},
+];
+var CLUSTERS=[
+  {n:96, lat:37.42,lng:126.92,fish:'볼락,우럭,광어'},
+  {n:30, lat:36.48,lng:126.28,fish:'감성돔,볼락'},
+  {n:32, lat:36.08,lng:126.45,fish:'우럭,넙치'},
+  {n:287,lat:35.52,lng:128.48,fish:'전갱이,부시리,방어'},
+  {n:65, lat:34.95,lng:127.78,fish:'참돔,도다리'},
+  {n:36, lat:35.48,lng:129.38,fish:'대구,가자미'},
+];
+var WEATH=[{t:'오전11',i:'☁️'},{t:'오후12',i:'🌤'},{t:'오후1',i:'🌤'},{t:'오후2',i:'⛅'},{t:'오후3',i:'☁️'},{t:'오후4',i:'🌧'},{t:'오후5',i:'🌧'}];
+var BG=['linear-gradient(135deg,#1e4a7a,#3a7cc5)','linear-gradient(135deg,#1a5a3a,#3a9c6a)','linear-gradient(135deg,#4a1e4a,#8a3a8a)'];
+var ICO_FISH='<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="rgba(255,255,255,.85)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8c0 0-2-3-7-3C6 5 2 10 2 12c0 2 4 7 9 7 5 0 7-3 7-3"/><path d="M18 8l4-3-1 4 1 4-4-3z"/><circle cx="7.5" cy="11" r="1" fill="rgba(255,255,255,.5)" stroke="none"/></svg>';
+var ICO_ROD='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="20" x2="20" y2="4"/><path d="M20 4c1 0 2 .5 2 1.5"/><path d="M15 9l2 2"/></svg>';
+var ICO_ANCHOR='<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="3"/><line x1="12" y1="8" x2="12" y2="22"/><path d="M5 15s1 4 7 4 7-4 7-4"/><line x1="5" y1="8" x2="19" y2="8"/></svg>';
+var ICO_BOAT='<svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="rgba(255,255,255,.85)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l1.5 3h15L21 17"/><path d="M5 17L12 5l7 12"/><line x1="12" y1="5" x2="12" y2="17"/></svg>';
+
+// ── STATE ─────────────────────────────────────────────────────
+var MAP=null,MARKERS=[],USE_KAKAO=false;
+var G={mode:'korea',q:'',ctaOn:true,selBoat:null,
+  pref:{step:1,date:null,stay:null,stayType:null,food:null,foodType:null}};
+
+// ── MAP INIT ─────────────────────────────────────────────────
+function initMap(){
+  var mapEl=document.getElementById('map');
+
+  // 카카오맵 로드됐으면 카카오맵 사용
+  if(typeof kakao!=='undefined'&&kakao.maps){
+    USE_KAKAO=true;
+    MAP=new kakao.maps.Map(mapEl,{
+      center:new kakao.maps.LatLng(36.2,127.8),
+      level:8
+    });
+    kakao.maps.event.addListener(MAP,'zoom_changed',onZoom);
+    addClusters();
+    return;
+  }
+
+  // 카카오맵 없으면 SVG 지도 fallback
+  mapEl.innerHTML=svgKoreaMap();
+  mapEl.style.background='#c8d9e6';
+  addSVGMarkers();
+}
+
+// ── KAKAO MAP 마커 ────────────────────────────────────────────
+function addClusters(){
+  clearMarkers();
+  CLUSTERS.forEach(function(c){
+    var sz=c.n>200?72:c.n>60?58:c.n>30?48:42;
+    var fs=c.n>200?17:c.n>60?15:13;
+    var content='<div class="cm" style="width:'+sz+'px;height:'+sz+'px;font-size:'+fs+'px;">'+c.n+'</div>';
+    var ov=new kakao.maps.CustomOverlay({position:new kakao.maps.LatLng(c.lat,c.lng),content:content,zIndex:3});
+    ov.setMap(MAP);
+    ov.getContent().addEventListener('click',(function(cl){return function(){zoomKakao(cl);};})(c));
+    MARKERS.push(ov);
+  });
+}
+
+function addDetailMarkers(){
+  clearMarkers();
+  CATCHES.forEach(function(c){
+    var content='<div class="dm-wrap"><div class="dm">'+ICO_ROD+'</div></div>';
+    var ov=new kakao.maps.CustomOverlay({position:new kakao.maps.LatLng(c.lat,c.lng),content:content,zIndex:4});
+    ov.setMap(MAP);
+    ov.getContent().addEventListener('click',(function(cc){return function(){openCatch(cc);};})(c));
+    MARKERS.push(ov);
+  });
+  BOATS.forEach(function(b){
+    var dot=b.id===1?'<div class="bm-dot"></div>':'';
+    var content='<div class="bm">'+ICO_ANCHOR+dot+'</div>';
+    var ov=new kakao.maps.CustomOverlay({position:new kakao.maps.LatLng(b.lat,b.lng),content:content,zIndex:4});
+    ov.setMap(MAP);
+    ov.getContent().addEventListener('click',(function(bb){return function(){openBoat(bb);};})(b));
+    MARKERS.push(ov);
+  });
+}
+
+function clearMarkers(){MARKERS.forEach(function(m){m.setMap(null);});MARKERS=[];}
+
+function zoomKakao(c){
+  G.mode='detail';G.q=c.fish.split(',')[0];
+  document.getElementById('searchInput').value=G.q;
+  hideCTA();
+  MAP.setLevel(5);MAP.setCenter(new kakao.maps.LatLng(c.lat,c.lng));
+  setTimeout(function(){addDetailMarkers();showSheet();},300);
+}
+
+function onZoom(){
+  if(!MAP)return;
+  var lv=MAP.getLevel();
+  if(lv<=5&&G.mode==='korea'){
+    G.mode='detail';addDetailMarkers();
+    if(G.q)showSheet();
+  } else if(lv>7&&G.mode==='detail'){
+    G.mode='korea';
+    clearMarkers();addClusters();hideSheet();
+    document.getElementById('searchInput').value='';G.q='';
+    if(G.ctaOn){var e=document.getElementById('cta');e.style.cssText='opacity:1;display:flex;';}
+  }
+}
+
+function resetMap(){
+  if(USE_KAKAO&&MAP){
+    G.mode='korea';clearMarkers();addClusters();
+    MAP.setLevel(8);MAP.setCenter(new kakao.maps.LatLng(36.2,127.8));
+  } else {
+    resetSVGView();
+  }
+  hideSheet();G.q='';document.getElementById('searchInput').value='';
+}
+
+function doSearch(){
+  var q=G.q||document.getElementById('searchInput').value.trim();
+  if(!q)return;
+  document.getElementById('searchInput').blur();
+  var tgt=CLUSTERS.find(function(c){return c.fish.includes(q);})||CLUSTERS[3];
+  if(USE_KAKAO&&MAP){zoomKakao(tgt);}
+  else{zoomSVG(tgt);}
+}
+
+function quickSearch(f){document.getElementById('searchInput').value=f;G.q=f;doSearch();}
+
+// ── SVG FALLBACK MAP ──────────────────────────────────────────
+function svgKoreaMap(){
+  return '<svg id="ksvg" xmlns="http://www.w3.org/2000/svg" width="390" height="844" viewBox="0 0 390 844" style="position:absolute;top:0;left:0;transition:transform .5s cubic-bezier(.4,0,.2,1)">'
+    +'<rect width="390" height="844" fill="#b8d4e8"/>'
+    +'<g stroke="#a0bcd0" stroke-width="0.4" opacity="0.5">'
+    +'<line x1="0" y1="211" x2="390" y2="211"/><line x1="0" y1="422" x2="390" y2="422"/><line x1="0" y1="633" x2="390" y2="633"/>'
+    +'<line x1="97.5" y1="0" x2="97.5" y2="844"/><line x1="195" y1="0" x2="195" y2="844"/><line x1="292.5" y1="0" x2="292.5" y2="844"/>'
+    +'</g>'
+    +'<path d="M195,55 L212,58 L230,54 L248,60 L262,70 L272,84 L276,100 L274,116 L278,132 L283,148 L280,166 L284,182 L288,198 L285,216 L290,232 L292,250 L288,268 L292,284 L296,300 L298,318 L295,336 L300,354 L302,372 L299,390 L303,408 L305,426 L301,444 L297,460 L292,476 L287,492 L281,508 L274,522 L267,536 L259,550 L250,562 L241,572 L232,580 L222,587 L212,592 L200,595 L188,592 L177,587 L167,579 L158,570 L149,558 L140,546 L132,532 L124,516 L117,500 L110,484 L104,468 L100,450 L96,434 L93,416 L91,398 L90,380 L93,362 L96,344 L99,326 L103,308 L106,290 L110,272 L114,256 L117,238 L114,220 L116,202 L120,186 L116,170 L114,154 L117,138 L122,124 L127,110 L133,97 L141,85 L152,74 L163,65 L177,58 Z" fill="#e8d5b0" stroke="#c4a96a" stroke-width="1.5"/>'
+    +'<ellipse cx="158" cy="726" rx="40" ry="22" fill="#e8d5b0" stroke="#c4a96a" stroke-width="1.5"/>'
+    +'<ellipse cx="70" cy="492" rx="11" ry="7" fill="#e8d5b0" stroke="#c4a96a" stroke-width="1"/>'
+    +'<ellipse cx="53" cy="522" rx="8" ry="5" fill="#e8d5b0" stroke="#c4a96a" stroke-width="1"/>'
+    +'<ellipse cx="78" cy="548" rx="13" ry="8" fill="#e8d5b0" stroke="#c4a96a" stroke-width="1"/>'
+    +'<text x="48" y="380" text-anchor="middle" font-size="12" fill="#5a8aa8" font-style="italic" font-family="sans-serif">서해</text>'
+    +'<text x="342" y="380" text-anchor="middle" font-size="12" fill="#5a8aa8" font-style="italic" font-family="sans-serif">동해</text>'
+    +'<text x="195" y="660" text-anchor="middle" font-size="12" fill="#5a8aa8" font-style="italic" font-family="sans-serif">남해</text>'
+    +'<text x="200" y="108" text-anchor="middle" font-size="10" fill="#7a6a4a" font-weight="600" font-family="sans-serif">강원도</text>'
+    +'<text x="175" y="195" text-anchor="middle" font-size="10" fill="#7a6a4a" font-weight="600" font-family="sans-serif">경기도</text>'
+    +'<text x="152" y="290" text-anchor="middle" font-size="10" fill="#7a6a4a" font-weight="600" font-family="sans-serif">충청남도</text>'
+    +'<text x="236" y="290" text-anchor="middle" font-size="10" fill="#7a6a4a" font-weight="600" font-family="sans-serif">충청북도</text>'
+    +'<text x="138" y="400" text-anchor="middle" font-size="10" fill="#7a6a4a" font-weight="600" font-family="sans-serif">전북</text>'
+    +'<text x="252" y="396" text-anchor="middle" font-size="10" fill="#7a6a4a" font-weight="600" font-family="sans-serif">경상북도</text>'
+    +'<text x="144" y="496" text-anchor="middle" font-size="10" fill="#7a6a4a" font-weight="600" font-family="sans-serif">전라남도</text>'
+    +'<text x="258" y="490" text-anchor="middle" font-size="10" fill="#7a6a4a" font-weight="600" font-family="sans-serif">경상남도</text>'
+    +'<circle cx="180" cy="172" r="3" fill="#c4906a"/><text x="187" y="175" font-size="9" fill="#7a5a3a" font-family="sans-serif">서울</text>'
+    +'<circle cx="260" cy="432" r="3" fill="#c4906a"/><text x="267" y="435" font-size="9" fill="#7a5a3a" font-family="sans-serif">대구</text>'
+    +'<circle cx="280" cy="490" r="3" fill="#c4906a"/><text x="287" y="493" font-size="9" fill="#7a5a3a" font-family="sans-serif">부산</text>'
+    +'<circle cx="194" cy="238" r="3" fill="#c4906a"/><text x="201" y="241" font-size="9" fill="#7a5a3a" font-family="sans-serif">대전</text>'
+    +'<circle cx="152" cy="428" r="3" fill="#c4906a"/><text x="159" y="431" font-size="9" fill="#7a5a3a" font-family="sans-serif">광주</text>'
+    // cluster markers as SVG circles
+    +'<g id="svg-clusters"></g>'
+    +'</svg>';
+}
+
+// SVG 모드 클러스터 좌표 (SVG 390x844 기준 픽셀)
+var SVG_CLUSTERS=[
+  {n:96, sx:124,sy:172,fish:'볼락,우럭,광어'},
+  {n:30, sx:86, sy:300,fish:'감성돔,볼락'},
+  {n:32, sx:93, sy:374,fish:'우럭,넙치'},
+  {n:287,sx:262,sy:458,fish:'전갱이,부시리,방어'},
+  {n:65, sx:193,sy:528,fish:'참돔,도다리'},
+  {n:36, sx:306,sy:444,fish:'대구,가자미'},
+];
+var SVG_CATCHES=[
+  {idx:0,sx:146,sy:518},{idx:1,sx:166,sy:536},{idx:2,sx:134,sy:506},{idx:3,sx:153,sy:546},
+];
+var SVG_BOATS=[
+  {idx:0,sx:140,sy:533},{idx:1,sx:160,sy:523},
+];
+var svgMode='korea';
+var svgZoom={scale:1,tx:0,ty:0};
+
+function addSVGMarkers(){
+  var wrap=document.getElementById('map');
+  // Remove old overlay if any
+  var old=document.getElementById('svg-overlay');
+  if(old)old.remove();
+  var ov=document.createElement('div');
+  ov.id='svg-overlay';
+  ov.style.cssText='position:absolute;inset:0;z-index:2;pointer-events:none;';
+  wrap.appendChild(ov);
+
+  if(svgMode==='korea'){
+    SVG_CLUSTERS.forEach(function(c){
+      var sz=c.n>200?72:c.n>60?58:c.n>30?48:42;
+      var fs=c.n>200?17:c.n>60?15:13;
+      var el=document.createElement('div');
+      el.className='cm';
+      el.style.cssText='position:absolute;width:'+sz+'px;height:'+sz+'px;font-size:'+fs+'px;'
+        +'left:'+applySVGZoom(c.sx,c.sy).x+'px;top:'+applySVGZoom(c.sx,c.sy).y+'px;transform:translate(-50%,-50%);pointer-events:all;';
+      el.textContent=c.n;
+      el.addEventListener('click',(function(cl){return function(){zoomSVG(cl);};})(c));
+      ov.appendChild(el);
+    });
+  } else {
+    SVG_CATCHES.forEach(function(sc){
+      var c=CATCHES[sc.idx];
+      var el=document.createElement('div');
+      el.style.cssText='position:absolute;left:'+applySVGZoom(sc.sx,sc.sy).x+'px;top:'+applySVGZoom(sc.sx,sc.sy).y+'px;transform:translate(-50%,-50%);pointer-events:all;cursor:pointer;';
+      el.innerHTML='<div class="dm">'+ICO_ROD+'</div>';
+      el.addEventListener('click',(function(cc){return function(){openCatch(cc);};})(c));
+      ov.appendChild(el);
+    });
+    SVG_BOATS.forEach(function(sb){
+      var b=BOATS[sb.idx];
+      var dot=b.id===1?'<div class="bm-dot"></div>':'';
+      var el=document.createElement('div');
+      el.style.cssText='position:absolute;left:'+applySVGZoom(sb.sx,sb.sy).x+'px;top:'+applySVGZoom(sb.sx,sb.sy).y+'px;transform:translate(-50%,-50%);pointer-events:all;';
+      el.innerHTML='<div class="bm">'+ICO_ANCHOR+dot+'</div>';
+      el.addEventListener('click',(function(bb){return function(){openBoat(bb);};})(b));
+      ov.appendChild(el);
+    });
+  }
+}
+
+function applySVGZoom(sx,sy){
+  return {x:sx*svgZoom.scale+svgZoom.tx, y:sy*svgZoom.scale+svgZoom.ty};
+}
+
+function zoomSVG(c){
+  svgMode='detail';G.mode='detail';
+  G.q=c.fish.split(',')[0];
+  document.getElementById('searchInput').value=G.q;
+  hideCTA();
+  var sx=c.sx||c.px||195,sy=c.sy||c.py||422;
+  var scale=2.2;
+  svgZoom={scale:scale,tx:195-sx*scale,ty:390-sy*scale};
+  var svg=document.getElementById('ksvg');
+  if(svg)svg.style.transform='scale('+scale+') translate('+svgZoom.tx/scale+'px,'+svgZoom.ty/scale+'px)';
+  setTimeout(function(){addSVGMarkers();showSheet();},450);
+}
+
+function resetSVGView(){
+  svgMode='korea';svgZoom={scale:1,tx:0,ty:0};
+  var svg=document.getElementById('ksvg');
+  if(svg)svg.style.transform='none';
+  addSVGMarkers();
+}
+
+// ── SHEET ─────────────────────────────────────────────────────
+function showSheet(){renderSheet();document.getElementById('sheet').classList.add('open');}
+function hideSheet(){document.getElementById('sheet').classList.remove('open');}
+
+function renderSheet(){
+  document.getElementById('sheet-list').innerHTML=CATCHES.map(function(c,i){
+    return '<div class="ritem" onclick="openCatch(CATCHES['+i+'])">'
+      +'<div class="rthumb" style="'+BG[i%3]+'">'+ICO_FISH+'</div>'
+      +'<div class="rinfo"><div class="rname">'+c.fish+' <span>'+c.angler+'</span></div>'
+      +'<div class="rsub">'+c.date+' · '+c.loc+'</div>'
+      +'<div class="rtag">'+c.method+' · '+c.rig+'</div></div>'
+      +'<div class="fav'+(c.starred?' on':'')+'" id="fav'+i+'" onclick="event.stopPropagation();toggleStar('+i+')">'
+        +'<svg viewBox="0 0 24 24" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>'
+      +'</div></div>';
+  }).join('');
+}
+
+function toggleStar(i){CATCHES[i].starred=!CATCHES[i].starred;var el=document.getElementById('fav'+i);if(el)el.classList.toggle('on',CATCHES[i].starred);}
+function hideCTA(){var el=document.getElementById('cta');el.style.opacity='0';el.style.transform='translateY(10px)';setTimeout(function(){el.style.display='none';},300);G.ctaOn=false;}
+function toggleFav(){var s=document.getElementById('fav-svg');if(s.getAttribute('fill')==='none'){s.setAttribute('fill','#FFC300');s.setAttribute('stroke','#E6A800');showToast('즐겨찾기에 추가됨');}else{s.setAttribute('fill','none');s.setAttribute('stroke','var(--sub)');showToast('즐겨찾기 해제됨');}}
+
+// ── CATCH PANEL ───────────────────────────────────────────────
+function openCatch(c){
+  document.getElementById('catch-body').innerHTML=
+    '<div class="carousel">'+BG.map(function(g,i){
+      var ico=[ICO_FISH,ICO_ANCHOR,ICO_BOAT][i];
+      return '<div class="car-slide" style="'+g+'">'+ico.replace(/width="\d+" height="\d+"/g,'width="72" height="72"')+'</div>';
+    }).join('')+'</div>'
+    +'<div style="padding:14px 18px 10px;">'
+      +'<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">'
+        +'<div style="width:36px;height:36px;border-radius:50%;background:var(--g2);display:flex;align-items:center;justify-content:center;">'
+          +'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="1.8" stroke-linecap="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>'
+        +'</div>'
+        +'<div><div style="font-size:14px;font-weight:700;">'+c.angler+'</div><div style="font-size:12px;color:var(--muted);">'+c.date+' · '+c.loc+'</div></div>'
+      +'</div>'
+      +'<div style="font-size:14px;line-height:1.75;color:var(--text);margin-bottom:10px;">고흥 영남면 앞바다에서 전갱이 조황이 좋았습니다. 아침 일찍 출발해 루어 조합으로 좋은 성과를 냈어요.</div>'
+      +'<div>'+'#전갱이 #고흥낚시 #루어낚시 #스피닝'.split(' ').map(function(t){return '<span class="chip">'+t+'</span>';}).join('')+'</div>'
+    +'</div>'
+    +'<div class="divider"></div>'
+    +'<div class="sec"><div class="sec-ttl">조과 정보</div>'
+      +'<div class="grid3">'
+        +'<div class="gc"><div class="gl">조수</div><div class="gv">'+(c.tide||'사리')+'</div></div>'
+        +'<div class="gc"><div class="gl">마릿수</div><div class="gv">'+c.count+'마리</div></div>'
+        +'<div class="gc"><div class="gl">최대크기</div><div class="gv">'+c.size+'</div></div>'
+        +'<div class="gc"><div class="gl">무게</div><div class="gv">'+c.weight+'</div></div>'
+        +'<div class="gc"><div class="gl">평균크기</div><div class="gv">33cm</div></div>'
+        +'<div class="gc"><div class="gl">채비</div><div class="gv" style="font-size:11px;">'+c.rig+'</div></div>'
+      +'</div>'
+    +'</div>'
+    +'<div class="sec"><div class="sec-ttl">낚시 로그</div>'
+      +[['날씨','☁️ 구름 80%'],['물때',"'B' 간조"],['풍속',c.wind||'2.1m/s'],['기압',c.bar||'1023hpa'],['파고',c.wave||'0.3m']].map(function(r){return '<div class="row"><span class="rl">'+r[0]+'</span><span class="rv">'+r[1]+'</span></div>';}).join('')
+    +'</div>'
+    +'<div class="sec"><div class="sec-ttl">포인트 날씨</div>'
+      +'<div class="wrow">'+WEATH.map(function(w){return '<div class="wc"><div class="wt">'+w.t+'</div><div class="we">'+w.i+'</div><div class="wv">-2°</div></div>';}).join('')+'</div>'
+    +'</div>'
+    +'<div class="sec" style="padding-bottom:14px;">'
+      +'<a class="kakao-btn" href="https://map.kakao.com/?q='+encodeURIComponent(c.loc+' 낚시')+'" target="_blank">'
+        +'<div class="kl">K</div><span>카카오맵에서 위치 보기</span><span style="margin-left:auto;">→</span>'
+      +'</a>'
+    +'</div>'
+    +'<div class="divider"></div>'
+    +'<div style="padding:14px 0 6px 18px;font-size:15px;font-weight:700;">인근 추천 선박</div>'
+    +'<div class="nearby-row">'+BOATS.map(function(b,i){
+      return '<div class="ncard" onclick="openBoat(BOATS['+i+'])">'
+        +'<div class="ncard-img" style="'+BG[0]+'">'+ICO_BOAT+'</div>'
+        +'<div class="ncard-info"><div class="ncard-name">'+b.name+'</div><div class="ncard-price">'+b.price.toLocaleString()+'원/인</div></div>'
+      +'</div>';
+    }).join('')+'</div>'
+    +'<button class="go-btn" onclick="G.selBoat=BOATS[0];closePanel(\'panel-catch\');startPref();">이 위치로 출조하기</button>';
+  openPanel('panel-catch');
+}
+
+// ── BOAT SHEET ────────────────────────────────────────────────
+function openBoat(b){
+  G.selBoat=b;
+  document.getElementById('bsheet').innerHTML=
+    '<div class="pull"><div class="pull-bar"></div></div>'
+    +'<div class="brow"><div class="bthumb" style="'+BG[0]+'">'+ICO_BOAT+'</div>'
+      +'<div style="flex:1;min-width:0;"><div class="bname">'+b.name+'</div><div class="bloc">'+b.loc+'</div>'
+        +(b.rest?'<div class="btmap"><div class="tmi">K</div><span>맛집 '+b.rest+' · 숙박 '+(b.hotel||0)+' · 관광지 '+(b.sight||0)+'</span></div>':'')
+      +'</div>'
+      +'<svg onclick="closeBoat()" width="20" height="20" viewBox="0 0 20 20" style="cursor:pointer;flex-shrink:0;">'
+        +'<line x1="4" y1="4" x2="16" y2="16" stroke="var(--muted)" stroke-width="2" stroke-linecap="round"/>'
+        +'<line x1="16" y1="4" x2="4" y2="16" stroke="var(--muted)" stroke-width="2" stroke-linecap="round"/>'
+      +'</svg>'
+    +'</div>'
+    +'<div class="grid3" style="margin:12px 0;">'
+      +'<div class="gc"><div class="gl">대상어종</div><div class="gv" style="font-size:11px;">'+b.fish+'</div></div>'
+      +'<div class="gc"><div class="gl">운항시간</div><div class="gv" style="font-size:11px;">'+b.hrs+'</div></div>'
+      +'<div class="gc"><div class="gl">가격(1인)</div><div class="gv">'+Math.round(b.price/10000)+'만원</div></div>'
+    +'</div>'
+    +'<a class="kakao-btn" style="margin-bottom:10px;" href="https://map.kakao.com/?q='+encodeURIComponent(b.loc.replace('·',' '))+'" target="_blank">'
+      +'<div class="kl">K</div><span>카카오맵 길찾기</span><span style="margin-left:auto;">→</span>'
+    +'</a>'
+    +'<div class="bbtns"><button class="bbtn-o" onclick="closeBoat()">상세정보</button>'
+      +'<button class="bbtn-f" onclick="closeBoat();closePanel(\'panel-catch\');startPref();">이 선박으로 출조하기</button>'
+    +'</div>';
+  document.getElementById('b-overlay').classList.add('on');
+  document.getElementById('bsheet').classList.add('open');
+}
+function closeBoat(){document.getElementById('b-overlay').classList.remove('on');document.getElementById('bsheet').classList.remove('open');}
+
+// ── PREFERENCES ───────────────────────────────────────────────
+function startPref(){G.pref={step:1,date:null,stay:null,stayType:null,food:null,foodType:null};renderPref();openPanel('panel-pref');}
+function prefBack(){if(G.pref.step>1){G.pref.step--;renderPref();}else closePanel('panel-pref');}
+function prefNext(){if(G.pref.step<3){G.pref.step++;renderPref();}else{renderFinal();closePanel('panel-pref');openPanel('panel-final');}}
+
+function renderPref(){
+  var p=G.pref,s=p.step;
+  document.getElementById('step-lbl').textContent='취향 수집 '+s+'/3';
+  document.getElementById('pfill').style.width=Math.round(s/3*100)+'%';
+  var html='';
+  if(s===1){
+    var today=new Date(),days=['일','월','화','수','목','금','토'],chips='';
+    for(var i=1;i<=7;i++){var d=new Date(today);d.setDate(today.getDate()+i);var key=d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();chips+='<div class="dc'+(p.date===key?' on':'')+'" onclick="selDate(\''+key+'\')">'+'<div class="dc-date">'+(d.getMonth()+1)+'월 '+d.getDate()+'일</div><div class="dc-day">'+days[d.getDay()]+'요일</div></div>';}
+    html='<div class="ptitle">언제 출조하실 건가요?</div><div class="psub">원하시는 날짜를 선택해 주세요</div><div class="date-chips">'+chips+'</div>';
+  } else if(s===2){
+    html='<div class="ptitle">숙박은 원하시나요?</div><div class="psub">출조 후 숙박 계획을 알려주세요</div>'
+      +'<div class="yn" style="margin-bottom:20px;"><button class="yn-btn y'+(p.stay===true?' on':'')+'" onclick="setStay(true)">네, 원해요!</button><button class="yn-btn n'+(p.stay===false?' on':'')+'" onclick="setStay(false)">아니요</button></div>';
+    if(p.stay===true)html+='<div class="psub2">어떤 숙박을 원하시나요?</div><div class="ogrid">'+[['camping','⛺','캠핑','자연 속 캠핑'],['pension','🏡','펜션','아늑한 펜션'],['hotel','🏨','호텔','편안한 호텔'],['motel','🛏️','모텔/GH','실속형']].map(function(r){return '<div class="ocard'+(p.stayType===r[0]?' on':'')+'" onclick="setStayType(\''+r[0]+'\')">'+'<div class="oemo">'+r[1]+'</div><div class="olbl">'+r[2]+'</div><div class="odesc">'+r[3]+'</div></div>';}).join('')+'</div>';
+  } else {
+    html='<div class="ptitle">맛집도 들르실 건가요?</div><div class="psub">출조 전후 식사 계획을 알려주세요</div>'
+      +'<div class="yn" style="margin-bottom:20px;"><button class="yn-btn y'+(p.food===true?' on':'')+'" onclick="setFood(true)">네, 원해요!</button><button class="yn-btn n'+(p.food===false?' on':'')+'" onclick="setFood(false)">아니요</button></div>';
+    if(p.food===true)html+='<div class="psub2">어떤 음식을 원하시나요?</div><div class="ogrid">'+[['seafood','🦞','해산물','싱싱한 회·조개'],['korean','🍚','한식','든든한 한정식'],['meat','🥩','고기','구이·불고기'],['cafe','☕','카페','오션뷰 카페']].map(function(r){return '<div class="ocard'+(p.foodType===r[0]?' on':'')+'" onclick="setFoodType(\''+r[0]+'\')">'+'<div class="oemo">'+r[1]+'</div><div class="olbl">'+r[2]+'</div><div class="odesc">'+r[3]+'</div></div>';}).join('')+'</div>';
+  }
+  document.getElementById('pref-body').innerHTML=html;
+  var ok=(s===1&&p.date)||(s===2&&p.stay!==null)||(s===3&&p.food!==null);
+  var btn=document.getElementById('next-btn');btn.disabled=!ok;btn.textContent=s<3?'다음':'나만의 플랜 만들기';
+}
+function selDate(v){G.pref.date=v;renderPref();}
+function setStay(v){G.pref.stay=v;if(!v)G.pref.stayType=null;renderPref();}
+function setStayType(v){G.pref.stayType=v;renderPref();}
+function setFood(v){G.pref.food=v;if(!v)G.pref.foodType=null;renderPref();}
+function setFoodType(v){G.pref.foodType=v;renderPref();}
+
+// ── FINAL ─────────────────────────────────────────────────────
+function renderFinal(){
+  var p=G.pref,boat=G.selBoat||BOATS[0];
+  var stayMap={camping:'왕산가족오토캠핑장',pension:'고흥 그린오션 펜션',hotel:'고흥 그랜드 호텔',motel:'고흥 게스트하우스'};
+  var foodMap={seafood:'고흥 꾸덕집',korean:'고흥 참맛한정식',meat:'바다조개구이',cafe:'오션뷰 커피클럽'};
+  var stayNm=stayMap[p.stayType]||'고흥 그린오션 펜션',foodNm=foodMap[p.foodType]||'고흥 참맛한정식';
+  var dateStr='날짜 미정',endStr='';
+  if(p.date){var pts=p.date.split('-');dateStr=pts[1]+'월 '+pts[2]+'일';if(p.stay){var nd=new Date(+pts[0],+pts[1]-1,+pts[2]+1);endStr=' ~ '+(nd.getMonth()+1)+'월 '+nd.getDate()+'일';}}
+  var tags=['이른 아침','주차장'];if(p.food)tags.push('맛집');if(p.stay)tags.push(p.stayType==='camping'?'캠핑장':'숙박');
+  var items=[{t:'05:40',title:'서울 출발',desc:'즐거운 출조 여행 되세요!'},{t:'07:30',title:'주차장 도착',move:'약 110분',desc:'추천 주차장 · 시간당 2,300원',link:'다른 주차장 찾기 →'}];
+  if(p.food)items.push({t:'08:00',title:'추천 맛집 식사',move:'도보 5분',desc:'"'+foodNm+'"'});
+  items.push({t:'09:00',title:'선박 집결지',move:'차량 15분',desc:'"'+(boat.loc||'').split('·').pop().trim()+'"'});
+  items.push({t:'15:30',title:'출조 완료',desc:'조황 공유하고 포인트도 등록해 보세요!'});
+  if(p.stay)items.push({t:'17:00',title:(p.stayType==='camping'?'캠핑장':'숙박')+' 체크인',move:'차량 10분',desc:'"'+stayNm+'"',link:'다른 숙박 찾기 →'});
+  document.getElementById('final-body').innerHTML=
+    '<div class="plan-hdr"><div class="plan-date">'+dateStr+endStr+'</div><div class="plan-name">홍길동님을 위한 추천 플랜</div>'
+    +'<div class="plan-meta">with <div class="kmap-badge">K</div> 카카오맵 연계</div></div>'
+    +'<div class="day-ttl">'+dateStr+' 일정</div>'
+    +'<div class="day-tags">'+tags.map(function(t){return '<div class="dtag">'+t+'</div>';}).join('')+'</div>'
+    +'<div class="tl">'+items.map(function(it){return '<div class="tl-row"><div class="tl-time">'+it.t+'</div><div class="tl-dot"></div><div class="tl-body"><div class="tl-title">'+it.title+'</div>'+(it.move?'<div class="tl-move"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2.2" stroke-linecap="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg> '+it.move+'</div>':'')+'<div class="tl-desc">'+it.desc+'</div>'+(it.link?'<div class="tl-link">'+it.link+'</div>':'')+'</div></div>';}).join('')+'</div>';
+  document.getElementById('final-acts').innerHTML=
+    '<button class="pa pa-no" onclick="G.pref.step=1;renderPref();closePanel(\'panel-final\');openPanel(\'panel-pref\');">다시 선택</button>'
+    +'<button class="pa pa-yes" onclick="showToast(\'플랜이 저장되었습니다!\')">플랜 저장</button>';
+}
+
+// ── UTILS ─────────────────────────────────────────────────────
+function openPanel(id){document.getElementById(id).classList.add('open');}
+function closePanel(id){document.getElementById(id).classList.remove('open');}
+function showToast(msg){var t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},2200);}
+
+// ── BOOT ──────────────────────────────────────────────────────
+initMap();
+</script>
+</body>
+</html>
