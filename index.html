@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>어바웃피싱 포인트맵</title>
 <!-- ★ 티맵 연동 (카카오맵 엔진) -->
-<script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=74eb939f1bcf90f450e7b1c3055eb904&libraries=services,clusterer&autoload=false"></script>
+<script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=74eb939f1bcf90f450e7b1c3055eb904&libraries=services,clusterer"></script>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
@@ -748,7 +748,14 @@ body{background:#1a1a2e;display:flex;justify-content:center;align-items:center;m
   </div>
 
   <div class="sheet" id="sheet">
-    <div class="pull"><div class="pull-bar"></div></div>
+    <div class="pull" onclick="hideSheet()" style="cursor:pointer;">
+      <div class="pull-bar"></div>
+    </div>
+    <div style="position:absolute;top:8px;right:12px;z-index:5;">
+      <div onclick="hideSheet()" style="width:28px;height:28px;border-radius:50%;background:var(--g1);display:flex;align-items:center;justify-content:center;cursor:pointer;">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="var(--sub)" stroke-width="2" stroke-linecap="round"><line x1="1" y1="1" x2="11" y2="11"/><line x1="11" y1="1" x2="1" y2="11"/></svg>
+      </div>
+    </div>
     <div class="sheet-list" id="sheet-list"></div>
   </div>
 
@@ -1149,11 +1156,20 @@ function initMap(){
     USE_KAKAO=true;
     MAP=new kakao.maps.Map(mapEl,{center:new kakao.maps.LatLng(36.2,127.8),level:8});
     kakao.maps.event.addListener(MAP,'zoom_changed',onZoom);
+    // 지도 클릭 시 시트 닫기
+    kakao.maps.event.addListener(MAP,'click',function(){
+      hideSheet();
+    });
     addClusters();
   } else {
     mapEl.innerHTML=svgKoreaMap();
     mapEl.style.background='#c8d9e6';
     addSVGMarkers();
+    mapEl.addEventListener('click',function(e){
+      if(e.target===mapEl||e.target.id==='ksvg'||e.target.tagName==='rect'||e.target.tagName==='path'||e.target.tagName==='text'){
+        hideSheet();
+      }
+    });
   }
 }
 
@@ -2214,15 +2230,18 @@ function showToast(msg){
 }
 
 // ── BOOT ──────────────────────────────────────────────────────
-window.addEventListener('load', function(){
-  if(typeof kakao!=='undefined'){
-    kakao.maps.load(function(){initMap();});
-  } else {
-    // SDK 로드 실패 시 SVG fallback
-    var el=document.getElementById('map');
-    if(el){el.innerHTML=svgKoreaMap();el.style.background='#c8d9e6';addSVGMarkers();}
-  }
-});
+// 카카오맵 초기화
+if(document.readyState==='loading'){
+  document.addEventListener('DOMContentLoaded', function(){
+    if(typeof kakao!=='undefined'&&kakao.maps){initMap();}
+    else if(typeof kakao!=='undefined'){kakao.maps.load(initMap);}
+    else{var el=document.getElementById('map');if(el){el.innerHTML=svgKoreaMap();el.style.background='#c8d9e6';addSVGMarkers();}}
+  });
+} else {
+  if(typeof kakao!=='undefined'&&kakao.maps){initMap();}
+  else if(typeof kakao!=='undefined'){kakao.maps.load(initMap);}
+  else{var el=document.getElementById('map');if(el){el.innerHTML=svgKoreaMap();el.style.background='#c8d9e6';addSVGMarkers();}}
+}
 </script>
 </body>
 </html>
