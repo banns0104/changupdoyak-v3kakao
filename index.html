@@ -223,7 +223,7 @@ body{background:#1a1a2e;display:flex;justify-content:center;align-items:center;m
 
 /* People row */
 .people-row{display:flex;gap:8px;}
-.people-btn{
+.people-btn{color:rgba(255,255,255,.6);
   flex:1;height:52px;border-radius:12px;
   background:rgba(255,255,255,.07);
   border:1.5px solid rgba(255,255,255,.1);
@@ -246,7 +246,7 @@ body{background:#1a1a2e;display:flex;justify-content:center;align-items:center;m
 }
 .level-card.on{background:rgba(75,159,255,.2);border-color:#4B9FFF;}
 .level-card:active{transform:scale(.97);}
-.lv-ico{font-size:22px;margin-bottom:6px;}
+.lv-ico{margin-bottom:8px;display:flex;justify-content:center;}
 .lv-name{font-size:13px;font-weight:700;color:#fff;}
 .lv-desc{font-size:10px;color:rgba(255,255,255,.4);margin-top:3px;}
 
@@ -262,7 +262,7 @@ body{background:#1a1a2e;display:flex;justify-content:center;align-items:center;m
 .yn-card.yes.on{background:rgba(75,159,255,.2);border-color:#4B9FFF;}
 .yn-card.no.on{background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.2);}
 .yn-card:active{transform:scale(.97);}
-.yn-ico{font-size:28px;margin-bottom:8px;}
+.yn-ico{margin-bottom:10px;display:flex;justify-content:center;}
 .yn-lbl{font-size:15px;font-weight:700;color:#fff;}
 .yn-sub{font-size:11px;color:rgba(255,255,255,.4);margin-top:4px;}
 
@@ -445,21 +445,21 @@ body{background:#1a1a2e;display:flex;justify-content:center;align-items:center;m
 
 /* Timeline */
 .tl-card{padding:16px 18px;}
-.tl2-row{display:flex;gap:0;position:relative;padding-left:56px;margin-bottom:20px;}
+.tl2-row{display:flex;gap:0;position:relative;padding-left:72px;margin-bottom:24px;}
 .tl2-row:last-child{margin-bottom:0;}
 .tl2-time{
-  position:absolute;left:0;top:0;
-  width:44px;text-align:right;
-  font-size:11px;font-weight:700;color:var(--muted);
+  position:absolute;left:0;top:2px;
+  width:52px;text-align:right;
+  font-size:12px;font-weight:600;color:var(--muted);
   line-height:1.3;
 }
 .tl2-line{
-  position:absolute;left:52px;top:18px;bottom:-20px;
+  position:absolute;left:64px;top:18px;bottom:-24px;
   width:1.5px;background:var(--g2);
 }
 .tl2-row:last-child .tl2-line{display:none;}
 .tl2-dot{
-  position:absolute;left:48px;top:4px;
+  position:absolute;left:60px;top:4px;
   width:10px;height:10px;border-radius:50%;
   background:#fff;border:2.5px solid var(--g2);
   z-index:1;
@@ -586,7 +586,32 @@ body{background:#1a1a2e;display:flex;justify-content:center;align-items:center;m
 .dm-anim{animation:markerDrop .42s cubic-bezier(.34,1.56,.64,1) both;}
 .dm-pulse .dm{animation:markerPulse 1.4s ease-out 0.3s;}
 .bm-anim{animation:markerDrop .42s cubic-bezier(.34,1.56,.64,1) both;}
-.cm{border-radius:50%;background:rgba(70,105,230,.88);border:2.5px solid rgba(255,255,255,.7);color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 14px rgba(70,105,230,.5);cursor:pointer;font-family:'Noto Sans KR',sans-serif;}
+/* Premium cluster */
+.cm{
+  border-radius:50%;
+  background:linear-gradient(145deg,#1A6BFF,#0040c8);
+  border:3px solid rgba(255,255,255,.9);
+  color:#fff;font-weight:800;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  box-shadow:0 4px 18px rgba(26,107,255,.55),0 0 0 4px rgba(26,107,255,.15);
+  cursor:pointer;font-family:'Noto Sans KR',sans-serif;
+  line-height:1;gap:1px;
+  transition:transform .15s;
+}
+.cm:hover{transform:translate(-50%,-50%) scale(1.08)!important;}
+.cm-n{font-size:inherit;font-weight:800;}
+.cm-lbl{font-size:9px;font-weight:500;opacity:.85;letter-spacing:.2px;}
+/* Premium individual marker */
+.dm{
+  width:38px;height:38px;
+  background:linear-gradient(145deg,#fff,#f0f4ff);
+  border:2.5px solid var(--blue);
+  border-radius:50% 50% 50% 4px;
+  transform:rotate(-45deg);
+  box-shadow:0 3px 12px rgba(26,107,255,.4);
+  display:flex;align-items:center;justify-content:center;
+}
+.dm svg{transform:rotate(45deg);width:18px;height:18px;stroke:var(--blue);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
 /* Catch marker */
 .dm-wrap{cursor:pointer;}
 .dm{width:36px;height:36px;background:var(--blue);border:2.5px solid #fff;border-radius:50% 50% 50% 4px;transform:rotate(-45deg);box-shadow:0 2px 8px rgba(26,107,255,.5);display:flex;align-items:center;justify-content:center;}
@@ -666,6 +691,18 @@ body{background:#1a1a2e;display:flex;justify-content:center;align-items:center;m
   <div class="overlay" id="b-overlay" onclick="closeBoat()"></div>
   <div class="bsheet" id="bsheet"></div>
 
+  <!-- Boat detail panel -->
+  <div class="panel" id="panel-boat">
+    <div class="pnav">
+      <div class="pback" onclick="closePanel('panel-boat')"><svg viewBox="0 0 22 22"><polyline points="14 18 8 11 14 4"/></svg></div>
+      <div style="font-size:16px;font-weight:700;color:var(--text);">선박 정보</div>
+      <div class="pacts">
+        <div class="pact"><svg viewBox="0 0 24 24"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg></div>
+      </div>
+    </div>
+    <div class="pscroll" id="boat-body"></div>
+  </div>
+
   <div class="panel" id="panel-catch">
     <div class="pnav" style="background:transparent;">
       <div class="pback" onclick="closePanel('panel-catch')"><svg viewBox="0 0 22 22"><polyline points="14 18 8 11 14 4"/></svg></div>
@@ -703,6 +740,18 @@ body{background:#1a1a2e;display:flex;justify-content:center;align-items:center;m
   </div>
 
   <div class="toast" id="toast"></div>
+
+  <!-- Saved plans panel -->
+  <div class="panel" id="panel-plans">
+    <div class="pnav">
+      <div class="pback" onclick="closePanel('panel-plans')"><svg viewBox="0 0 22 22"><polyline points="14 18 8 11 14 4"/></svg></div>
+      <div style="font-size:16px;font-weight:700;">저장된 플랜</div>
+      <div style="width:36px;"></div>
+    </div>
+    <div style="overflow-y:auto;flex:1;margin-top:88px;padding-bottom:20px;" id="plans-body">
+      <div style="padding:40px 20px;text-align:center;color:var(--muted);font-size:14px;">저장된 플랜이 없습니다</div>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -718,6 +767,9 @@ var ALL_CATCHES = {
     {id:105,fish:'광어',angler:'인천플랫',date:'3월 17일',loc:'인천 자월도',method:'루어낚시',rig:'지그헤드웜',size:'52cm',weight:'2.0kg',count:1,lat:37.15,lng:126.32,tide:'사리',wind:'2.0m/s 북동',bar:'1019hpa',wave:'0.4m',memo:'자월도 광어 52cm! 수심 15m 모래밭 포인트.',tags:['#광어','#자월도','#대물']},
     {id:106,fish:'우럭',angler:'영종도꾼',date:'3월 17일',loc:'인천 영종도',method:'선상낚시',rig:'지그헤드',size:'38cm',weight:'0.9kg',count:7,lat:37.48,lng:126.55,tide:'조금',wind:'2.2m/s 서북',bar:'1020hpa',wave:'0.3m',memo:'영종도 우럭 7마리. 입질 시원하고 마릿수 좋았어요.',tags:['#우럭','#영종도','#마릿수']},
     {id:107,fish:'숭어',angler:'갯바위숭어',date:'3월 16일',loc:'인천 소래포구',method:'갯바위낚시',rig:'막대찌',size:'42cm',weight:'1.1kg',count:4,lat:37.43,lng:126.72,tide:'무시',wind:'1.0m/s 남',bar:'1022hpa',wave:'0.1m',memo:'소래포구 숭어 4마리. 봄 숭어 씨알 굵네요!',tags:['#숭어','#소래포구','#갯바위']},
+    {id:108,fish:'볼락',angler:'강화야간꾼',date:'3월 15일',loc:'인천 강화 외포리',method:'루어낚시',rig:'지그헤드 1.5g',size:'22cm',weight:'0.28kg',count:21,lat:37.60,lng:126.42,tide:'사리',wind:'1.2m/s 서',bar:'1022hpa',wave:'0.1m',memo:'외포리 야간 볼락 21마리 폭발! 소형지그 화이트 최강.',tags:['#볼락','#외포리','#야간','#마릿수']},
+    {id:109,fish:'광어',angler:'인천루어장인',date:'3월 14일',loc:'인천 영흥도 선재도',method:'루어낚시',rig:'지그헤드웜 18g',size:'61cm',weight:'2.6kg',count:1,lat:37.32,lng:126.62,tide:'조금',wind:'2.0m/s 북서',bar:'1020hpa',wave:'0.3m',memo:'선재도 앞 광어 61cm 대물! 핑크웜 수심 14m.',tags:['#광어','#선재도','#대물']},
+    {id:110,fish:'우럭',angler:'옹진군꾼',date:'3월 13일',loc:'인천 옹진 소야도',method:'선상낚시',rig:'다운샷 18g',size:'44cm',weight:'1.3kg',count:6,lat:37.10,lng:126.02,tide:'한사리',wind:'3.0m/s 북서',bar:'1015hpa',wave:'0.8m',memo:'소야도 우럭 마릿수 조황. 씨알 40cm급 굵어요.',tags:['#우럭','#소야도','#마릿수']},
   ],
   // 충남 서해 (감성돔,볼락,우럭,광어,주꾸미,농어)
   c1:[
@@ -727,6 +779,10 @@ var ALL_CATCHES = {
     {id:204,fish:'농어',angler:'농어마스터',date:'3월 18일',loc:'충남 보령 외연도',method:'루어낚시',rig:'미노우',size:'68cm',weight:'3.2kg',count:1,lat:36.22,lng:126.05,tide:'한사리',wind:'3.5m/s 서',bar:'1014hpa',wave:'1.0m',memo:'외연도 농어 68cm! 미노우 12cm에 폭발. 힘 장난 아님.',tags:['#농어','#외연도','#대물','#미노우']},
     {id:205,fish:'광어',angler:'충남광어꾼',date:'3월 17일',loc:'충남 태안 몽산포',method:'루어낚시',rig:'지그헤드웜',size:'54cm',weight:'2.1kg',count:1,lat:36.75,lng:126.32,tide:'조금',wind:'2.0m/s 북서',bar:'1020hpa',wave:'0.3m',memo:'몽산포 광어 54cm. 모래사장 포인트 수심 10m.',tags:['#광어','#몽산포','#대물']},
     {id:206,fish:'감성돔',angler:'서산꾼최씨',date:'3월 17일',loc:'충남 서산 가로림만',method:'찌낚시',rig:'반유동',size:'41cm',weight:'1.3kg',count:3,lat:36.83,lng:126.48,tide:'사리',wind:'1.8m/s 남',bar:'1021hpa',wave:'0.2m',memo:'가로림만 감성돔 3마리. 반유동 찌낚시 수심 6m.',tags:['#감성돔','#가로림만','#찌낚시']},
+    {id:207,fish:'주꾸미',angler:'천안꾼오씨',date:'3월 14일',loc:'충남 서천 홍원항',method:'선상낚시',rig:'에기 2.5호',size:'18cm',weight:'0.20kg',count:28,lat:36.08,lng:126.60,tide:'사리',wind:'1.5m/s 서',bar:'1021hpa',wave:'0.2m',memo:'홍원항 주꾸미 28마리! 에기 라이트 사이즈.',tags:['#주꾸미','#홍원항','#마릿수']},
+    {id:208,fish:'광어',angler:'태안모래꾼',date:'3월 13일',loc:'충남 태안 신두리',method:'루어낚시',rig:'지그헤드웜',size:'57cm',weight:'2.3kg',count:1,lat:36.92,lng:126.18,tide:'조금',wind:'2.5m/s 북서',bar:'1019hpa',wave:'0.4m',memo:'신두리 사구 앞 광어 57cm. 모래밭 포인트.',tags:['#광어','#신두리','#루어']},
+    {id:209,fish:'농어',angler:'서해서핑꾼',date:'3월 12일',loc:'충남 태안 만리포',method:'루어낚시',rig:'미노우 14cm',size:'70cm',weight:'3.5kg',count:1,lat:36.78,lng:126.12,tide:'한사리',wind:'4.5m/s 서',bar:'1012hpa',wave:'1.5m',memo:'만리포 서핑낚시 농어 70cm. 파도 강한 날 대물.',tags:['#농어','#만리포','#서핑','#대물']},
+    {id:210,fish:'감성돔',angler:'보령황도꾼',date:'3월 11일',loc:'충남 보령 황도',method:'찌낚시',rig:'구멍찌 2B',size:'44cm',weight:'1.5kg',count:2,lat:36.35,lng:126.38,tide:'무시',wind:'2.0m/s 남서',bar:'1020hpa',wave:'0.3m',memo:'황도 감성돔 44cm 2마리. 봄 씨알 올라왔어요.',tags:['#감성돔','#황도','#찌낚시']},
   ],
   // 전북 서해 (우럭,광어,감성돔,농어,주꾸미)
   c2:[
@@ -747,6 +803,8 @@ var ALL_CATCHES = {
     {id:406,fish:'참돔',angler:'통영참돔꾼',date:'3월 17일',loc:'경남 통영 한산도',method:'선상낚시',rig:'타이라바 80g',size:'55cm',weight:'2.6kg',count:1,lat:34.83,lng:128.45,tide:'사리',wind:'2.5m/s 북동',bar:'1019hpa',wave:'0.5m',memo:'한산도 참돔 55cm! 타이라바 주황스커트.',tags:['#참돔','#한산도','#타이라바','#대물']},
     {id:407,fish:'방어',angler:'겨울방어킬러',date:'3월 16일',loc:'경남 남해 노도',method:'선상낚시',rig:'갈치미끼',size:'80cm',weight:'5.1kg',count:2,lat:34.68,lng:127.78,tide:'사리',wind:'3.2m/s 북동',bar:'1017hpa',wave:'0.6m',memo:'노도 방어 80cm, 74cm. 강력한 파이팅!',tags:['#방어','#노도','#대물','#선상']},
     {id:408,fish:'볼락',angler:'경남볼락야간',date:'3월 16일',loc:'경남 통영 도남항',method:'루어낚시',rig:'마이크로지그 2g',size:'24cm',weight:'0.32kg',count:19,lat:34.85,lng:128.42,tide:'조금',wind:'1.2m/s 남',bar:'1023hpa',wave:'0.1m',memo:'도남항 야간 볼락 19마리! 마이크로지그 최강.',tags:['#볼락','#도남항','#야간','#마릿수']},
+    {id:409,fish:'전갱이',angler:'창원배꾼',date:'3월 14일',loc:'경남 창원 구복리',method:'선상낚시',rig:'전갱이채비',size:'34cm',weight:'1.0kg',count:10,lat:35.05,lng:128.58,tide:'사리',wind:'2.5m/s 북동',bar:'1019hpa',wave:'0.4m',memo:'구복리 전갱이 10마리! 선상 채비 기본으로 터졌어요.',tags:['#전갱이','#창원','#선상']},
+    {id:410,fish:'볼락',angler:'삼천포야간꾼',date:'3월 13일',loc:'경남 사천 삼천포',method:'루어낚시',rig:'지그헤드 2g',size:'27cm',weight:'0.38kg',count:16,lat:34.92,lng:128.08,tide:'조금',wind:'1.0m/s 남',bar:'1024hpa',wave:'0.1m',memo:'삼천포 야간 볼락 16마리! 미항 방파제 포인트.',tags:['#볼락','#삼천포','#야간','#마릿수']},
   ],
   // 남해 (참돔,도다리,감성돔,볼락,방어)
   c4:[
@@ -757,6 +815,9 @@ var ALL_CATCHES = {
     {id:505,fish:'참돔',angler:'완도참돔헌터',date:'3월 17일',loc:'전남 완도',method:'선상낚시',rig:'타이라바 80g',size:'60cm',weight:'3.1kg',count:1,lat:34.32,lng:126.75,tide:'사리',wind:'2.5m/s 북서',bar:'1018hpa',wave:'0.5m',memo:'완도 참돔 60cm 대물! 오렌지 스커트.',tags:['#참돔','#완도','#타이라바','#대물']},
     {id:506,fish:'볼락',angler:'여수볼락야간',date:'3월 17일',loc:'전남 여수 오동도',method:'루어낚시',rig:'지그헤드 1.5g',size:'23cm',weight:'0.28kg',count:17,lat:34.74,lng:127.76,tide:'조금',wind:'1.0m/s 남',bar:'1024hpa',wave:'0.1m',memo:'오동도 야간 볼락 17마리! 소형 지그헤드 최강.',tags:['#볼락','#오동도','#야간','#마릿수']},
     {id:507,fish:'방어',angler:'거문도방어꾼',date:'3월 16일',loc:'전남 여수 거문도',method:'선상낚시',rig:'메탈지그 80g',size:'76cm',weight:'4.5kg',count:2,lat:34.03,lng:127.30,tide:'한사리',wind:'3.5m/s 북동',bar:'1015hpa',wave:'1.0m',memo:'거문도 방어 76cm, 70cm. 겨울 방어 피날레!',tags:['#방어','#거문도','#대물','#선상']},
+    {id:508,fish:'도다리',angler:'광양만꾼',date:'3월 14일',loc:'전남 광양 묘도',method:'선상낚시',rig:'청개구리채비',size:'28cm',weight:'0.4kg',count:11,lat:34.92,lng:127.72,tide:'사리',wind:'1.5m/s 동',bar:'1021hpa',wave:'0.2m',memo:'묘도 봄 도다리 11마리 마릿수. 씨알도 나쁘지 않아요.',tags:['#도다리','#묘도','#마릿수']},
+    {id:509,fish:'감성돔',angler:'진도꾼허씨',date:'3월 13일',loc:'전남 진도 관매도',method:'찌낚시',rig:'구멍찌 3B',size:'51cm',weight:'2.2kg',count:1,lat:34.22,lng:126.00,tide:'한사리',wind:'3.5m/s 서북',bar:'1013hpa',wave:'1.0m',memo:'관매도 51cm 감성돔 대물! 봄 최대 씨알.',tags:['#감성돔','#관매도','#대물','#51cm']},
+    {id:510,fish:'참돔',angler:'목포타이라바',date:'3월 12일',loc:'전남 신안 압해도',method:'선상낚시',rig:'타이라바 120g',size:'62cm',weight:'3.2kg',count:1,lat:34.88,lng:126.32,tide:'조금',wind:'2.2m/s 서',bar:'1020hpa',wave:'0.4m',memo:'압해도 참돔 62cm. 타이라바 오렌지 스커트.',tags:['#참돔','#압해도','#타이라바','#대물']},
   ],
   // 경북·울산 (대구,가자미,문어,볼락,광어)
   c5:[
@@ -797,27 +858,27 @@ var ICO_BOAT='<svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke
 
 // ── 어종별 실사 사진 (Unsplash) ──────────────────────────────
 var FISH_PHOTOS={
-  '광어':'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=120&h=120&fit=crop',
-  '넙치':'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=120&h=120&fit=crop',
-  '전갱이':'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=120&h=120&fit=crop',
-  '우럭':'https://images.unsplash.com/photo-1559494007-9f5847c49d94?w=120&h=120&fit=crop',
-  '볼락':'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&h=120&fit=crop',
-  '감성돔':'https://images.unsplash.com/photo-1568347877321-f8935c7dc5f0?w=120&h=120&fit=crop',
-  '참돔':'https://images.unsplash.com/photo-1604503468506-a8da13d82791?w=120&h=120&fit=crop',
-  '도다리':'https://images.unsplash.com/photo-1485470733090-0aae1788d5af?w=120&h=120&fit=crop',
-  '방어':'https://images.unsplash.com/photo-1534482421-64566f976cfa?w=120&h=120&fit=crop',
-  '부시리':'https://images.unsplash.com/photo-1565440962783-f87effdbc0b9?w=120&h=120&fit=crop',
-  '대구':'https://images.unsplash.com/photo-1611171711791-b34e41585073?w=120&h=120&fit=crop',
-  '가자미':'https://images.unsplash.com/photo-1571752726703-5e7d1f6a986d?w=120&h=120&fit=crop',
-  '주꾸미':'https://images.unsplash.com/photo-1545696968-1a31da406a84?w=120&h=120&fit=crop',
-  '문어':'https://images.unsplash.com/photo-1545696968-1a31da406a84?w=120&h=120&fit=crop',
-  '농어':'https://images.unsplash.com/photo-1611171711791-b34e41585073?w=120&h=120&fit=crop',
-  '숭어':'https://images.unsplash.com/photo-1611171711791-b34e41585073?w=120&h=120&fit=crop',
+  '광어':'https://images.unsplash.com/photo-1567364020-e9e0a79bddde?w=120&h=120&fit=crop&auto=format',
+  '넙치':'https://images.unsplash.com/photo-1567364020-e9e0a79bddde?w=120&h=120&fit=crop&auto=format',
+  '전갱이':'https://images.unsplash.com/photo-1510771463146-e89e6e86560e?w=120&h=120&fit=crop&auto=format',
+  '우럭':'https://images.unsplash.com/photo-1501706362039-c06b2d715385?w=120&h=120&fit=crop&auto=format',
+  '볼락':'https://images.unsplash.com/photo-1561365452-adb940139ffa?w=120&h=120&fit=crop&auto=format',
+  '감성돔':'https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=120&h=120&fit=crop&auto=format',
+  '참돔':'https://images.unsplash.com/photo-1535637603896-07c179d71103?w=120&h=120&fit=crop&auto=format',
+  '도다리':'https://images.unsplash.com/photo-1544551763-77ef2d0cfc6c?w=120&h=120&fit=crop&auto=format',
+  '방어':'https://images.unsplash.com/photo-1490914327627-9fe8d52f4d90?w=120&h=120&fit=crop&auto=format',
+  '부시리':'https://images.unsplash.com/photo-1490914327627-9fe8d52f4d90?w=120&h=120&fit=crop&auto=format',
+  '대구':'https://images.unsplash.com/photo-1511689660979-10d2b1afd495?w=120&h=120&fit=crop&auto=format',
+  '가자미':'https://images.unsplash.com/photo-1544551763-77ef2d0cfc6c?w=120&h=120&fit=crop&auto=format',
+  '주꾸미':'https://images.unsplash.com/photo-1582967788606-a171c1080cb0?w=120&h=120&fit=crop&auto=format',
+  '문어':'https://images.unsplash.com/photo-1582967788606-a171c1080cb0?w=120&h=120&fit=crop&auto=format',
+  '농어':'https://images.unsplash.com/photo-1501706362039-c06b2d715385?w=120&h=120&fit=crop&auto=format',
+  '숭어':'https://images.unsplash.com/photo-1510771463146-e89e6e86560e?w=120&h=120&fit=crop&auto=format',
 };
 function getFishThumb(fish){
   var url=FISH_PHOTOS[fish];
   if(!url)url='https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=120&h=120&fit=crop';
-  return '<img src="'+url+'" style="width:100%;height:100%;object-fit:cover;border-radius:10px;" onerror="this.style.display=\'none\'">';
+  return '<img src="'+url+'" style="width:100%;height:100%;object-fit:cover;border-radius:10px;">';
 }
 
 // ── STATE ─────────────────────────────────────────────────────
@@ -825,6 +886,7 @@ var WEATH=[{t:'07시',i:'🌤',c:'9°',w:'1.2m/s'},{t:'09시',i:'⛅',c:'13°',w
 var MAP=null, MARKERS=[], USE_KAKAO=false;
 var G={mode:'korea', q:'', ctaOn:true, selBoat:null,
   pref:{step:1,date:null,stay:null,stayType:null,food:null,foodType:null}};
+var SAVED_PLANS=[];
 
 // ── MAP INIT ─────────────────────────────────────────────────
 function initMap(){
@@ -875,7 +937,11 @@ function addClusters(){
   CLUSTERS.forEach(function(c){
     var sz=c.n>200?72:c.n>60?58:c.n>30?48:42;
     var fs=c.n>200?17:c.n>60?15:13;
-    var html='<div class="cm" style="width:'+sz+'px;height:'+sz+'px;font-size:'+fs+'px;cursor:pointer;">'+c.n+'</div>';
+    var mainFish=c.fish.split(',')[0];
+    var html='<div class="cm" style="width:'+sz+'px;height:'+sz+'px;font-size:'+fs+'px;cursor:pointer;">'
+      +'<span class="cm-n">'+c.n+'</span>'
+      +'<span class="cm-lbl">'+mainFish+'</span>'
+    +'</div>';
     addOverlay(c.lat,c.lng,html,3,(function(cl){return function(){zoomToCluster(cl);};})(c));
   });
 }
@@ -910,11 +976,15 @@ function zoomToCluster(c){
   G.q=c.fish.split(',')[0];
   document.getElementById('searchInput').value=G.q;
   hideCTA();
+  // 먼저 레벨 6으로 이동 후 5로 다시 줌 - 지도 확대 애니메이션 느낌
   MAP.setCenter(mkLatLng(c.lat,c.lng));
-  MAP.setLevel(5,{animate:true});
+  MAP.setLevel(7,{animate:true});
   setTimeout(function(){
-    addDetailMarkers();
-    showSheet(G.q);
+    MAP.setLevel(5,{animate:true});
+    setTimeout(function(){
+      addDetailMarkers();
+      showSheet(G.q);
+    },500);
   },400);
 }
 
@@ -1182,10 +1252,22 @@ function toggleFav(){
 // ── CATCH PANEL ───────────────────────────────────────────────
 function openCatch(c){
   document.getElementById('catch-body').innerHTML=
-    '<div class="carousel">'+BG.map(function(g,i){
-      var ico=[ICO_FISH,ICO_ANCHOR,ICO_BOAT][i];
-      return '<div class="car-slide" style="'+g+'">'+ico.replace(/width="\d+" height="\d+"/g,'width="72" height="72"')+'</div>';
-    }).join('')+'</div>'
+    (function(){
+      var url1=FISH_PHOTOS[c.fish]||'https://images.unsplash.com/photo-1510771463146-e89e6e86560e?w=390&h=220&fit=crop&auto=format';
+      var url2='https://images.unsplash.com/photo-1497290756760-23ac55edf36f?w=390&h=220&fit=crop&auto=format';
+      var url3='https://images.unsplash.com/photo-1506929562872-bb421503ef21?w=390&h=220&fit=crop&auto=format';
+      return '<div class="carousel">'
+        +'<div class="car-slide" style="background:#0a1a2e;overflow:hidden;">'
+          +'<img src="'+url1+'" style="width:100%;height:100%;object-fit:cover;">'
+        +'</div>'
+        +'<div class="car-slide" style="background:#0a2a1a;overflow:hidden;">'
+          +'<img src="'+url2+'" style="width:100%;height:100%;object-fit:cover;">'
+        +'</div>'
+        +'<div class="car-slide" style="background:#1a0a2a;overflow:hidden;">'
+          +'<img src="'+url3+'" style="width:100%;height:100%;object-fit:cover;">'
+        +'</div>'
+      +'</div>';
+    })()
     +'<div style="padding:14px 18px 10px;">'
       +'<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">'
         +'<div style="width:36px;height:36px;border-radius:50%;background:var(--g2);display:flex;align-items:center;justify-content:center;">'
@@ -1194,7 +1276,7 @@ function openCatch(c){
         +'<div><div style="font-size:14px;font-weight:700;">'+c.angler+'</div>'
         +'<div style="font-size:12px;color:var(--muted);">'+c.date+' · '+c.loc+'</div></div>'
       +'</div>'
-      +'<div style="font-size:14px;line-height:1.75;color:var(--text);margin-bottom:10px;">고흥 영남면 앞바다에서 전갱이 조황이 좋았습니다. 아침 일찍 출발해 루어 조합으로 좋은 성과를 냈어요.</div>'
+      +'<div style="font-size:14px;line-height:1.75;color:var(--text);margin-bottom:10px;">'+(c.memo||'조황 기록')+'</div>'
       +'<div>'+(c.tags||['#낚시','#조황']).map(function(t){return '<span class="chip">'+t+'</span>';}).join('')+'</div>'
     +'</div>'
     +'<div class="divider"></div>'
@@ -1227,7 +1309,7 @@ function openCatch(c){
     +'<div style="padding:14px 0 6px 18px;font-size:15px;font-weight:700;">인근 추천 선박</div>'
     +'<div class="nearby-row">'+BOATS.map(function(b,i){
       return '<div class="ncard" onclick="openBoat(BOATS['+i+'])">'
-        +'<div class="ncard-img" style="'+BG[0]+'">'+ICO_BOAT+'</div>'
+        +'<div class="ncard-img" style="overflow:hidden;background:'+BG[0]+';"><img src="https://images.unsplash.com/photo-1469796466635-455ede028aca?w=140&h=78&fit=crop&auto=format" style="width:100%;height:100%;object-fit:cover;"></div>'
         +'<div class="ncard-info"><div class="ncard-name">'+b.name+'</div>'
         +'<div class="ncard-price">'+b.price.toLocaleString()+'원/인</div></div>'
       +'</div>';
@@ -1238,15 +1320,17 @@ function openCatch(c){
 
 // ── BOAT SHEET ────────────────────────────────────────────────
 function openBoat(b){
+  // Boat marker click → bottom sheet quick modal
   G.selBoat=b;
+  var TSVG='<svg viewBox="0 0 32 32" fill="none" width="14" height="14"><rect x="2" y="4" width="28" height="8" rx="2" fill="#FF4DBB"/><path d="M13 12 Q19 12 19 18 L19 28 L13 28 Z" fill="#4169FF"/></svg>';
   document.getElementById('bsheet').innerHTML=
     '<div class="pull"><div class="pull-bar"></div></div>'
     +'<div class="brow">'
-      +'<div class="bthumb" style="'+BG[0]+'">'+ICO_BOAT+'</div>'
+      +'<div class="bthumb" style="background:linear-gradient(135deg,#1e4a7a,#3a7cc5);">'+ICO_BOAT+'</div>'
       +'<div style="flex:1;min-width:0;">'
         +'<div class="bname">'+b.name+'</div>'
         +'<div class="bloc">'+b.loc+'</div>'
-        +(b.rest?'<div class="btmap"><div class="tmap-logo" style="width:18px;height:18px;"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="tg1" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#FF4DBB"/><stop offset="100%" stop-color="#2DE8C8"/></linearGradient><linearGradient id="tg2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#2DE8C8"/><stop offset="100%" stop-color="#4169FF"/></linearGradient></defs><rect x="2" y="4" width="28" height="8" rx="2" fill="url(#tg1)"/><path d="M13 12 Q19 12 19 18 L19 28 L13 28 Z" fill="url(#tg2)"/></svg></div><span>맛집 '+b.rest+' · 숙박 '+(b.hotel||0)+' · 관광지 '+(b.sight||0)+'</span></div>':'')
+        +(b.rest?'<div class="btmap">'+TSVG+'<span>맛집 '+b.rest+' · 숙박 '+(b.hotel||0)+' · 관광지 '+(b.sight||0)+'</span></div>':'')
       +'</div>'
       +'<svg onclick="closeBoat()" width="20" height="20" viewBox="0 0 20 20" style="cursor:pointer;flex-shrink:0;">'
         +'<line x1="4" y1="4" x2="16" y2="16" stroke="var(--muted)" stroke-width="2" stroke-linecap="round"/>'
@@ -1255,22 +1339,73 @@ function openBoat(b){
     +'</div>'
     +'<div class="grid3" style="margin:12px 0;">'
       +'<div class="gc"><div class="gl">대상어종</div><div class="gv" style="font-size:11px;">'+b.fish+'</div></div>'
-      +'<div class="gc"><div class="gl">운항시간</div><div class="gv" style="font-size:11px;">'+b.hrs+'</div></div>'
+      +'<div class="gc"><div class="gl">운항시간</div><div class="gv" style="font-size:12px;">'+b.hrs+'</div></div>'
       +'<div class="gc"><div class="gl">가격(1인)</div><div class="gv">'+Math.round(b.price/10000)+'만원</div></div>'
     +'</div>'
     +'<a class="tmap-btn" style="margin-bottom:10px;" href="https://tmap.life/search?keyword='+encodeURIComponent(b.loc.replace('·',' '))+'" target="_blank">'
-      +'<div class="tmap-logo"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="tg1" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#FF4DBB"/><stop offset="100%" stop-color="#2DE8C8"/></linearGradient><linearGradient id="tg2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#2DE8C8"/><stop offset="100%" stop-color="#4169FF"/></linearGradient></defs><rect x="2" y="4" width="28" height="8" rx="2" fill="url(#tg1)"/><path d="M13 12 Q19 12 19 18 L19 28 L13 28 Z" fill="url(#tg2)"/></svg></div><span>T map 길찾기</span><span style="margin-left:auto;">→</span>'
+      +'<div class="tmap-logo"><svg viewBox="0 0 32 32" fill="none"><rect x="2" y="4" width="28" height="8" rx="2" fill="#FF4DBB"/><path d="M13 12 Q19 12 19 18 L19 28 L13 28 Z" fill="#4169FF"/></svg></div>'
+      +'<span>T map 길찾기</span><span style="margin-left:auto;">→</span>'
     +'</a>'
     +'<div class="bbtns">'
-      +'<button class="bbtn-o" onclick="closeBoat()">상세정보</button>'
-      +'<button class="bbtn-f" onclick="closeBoat();closePanel(\'panel-catch\');startPref();">이 선박으로 출조하기</button>'
+      +'<button class="bbtn-o" onclick="closeBoat();openBoatPanel(G.selBoat);">상세정보</button>'
+      +'<button class="bbtn-f" onclick="closeBoat();startPref();">이 선박으로 출조하기</button>'
     +'</div>';
   document.getElementById('b-overlay').classList.add('on');
   document.getElementById('bsheet').classList.add('open');
 }
+
+function openBoatPanel(b){
+  // Full screen boat detail page
+  b=b||G.selBoat||BOATS[0];
+  G.selBoat=b;
+  var img='https://images.unsplash.com/photo-1469796466635-455ede028aca?w=390&h=220&fit=crop&auto=format';
+  var TSVG='<svg viewBox="0 0 32 32" fill="none" width="14" height="14"><rect x="2" y="4" width="28" height="8" rx="2" fill="#FF4DBB"/><path d="M13 12 Q19 12 19 18 L19 28 L13 28 Z" fill="#4169FF"/></svg>';
+  var html=
+    '<div style="position:relative;height:220px;margin-top:88px;overflow:hidden;">'
+      +'<img src="'+img+'" style="width:100%;height:100%;object-fit:cover;">'
+      +'<div style="position:absolute;inset:0;background:linear-gradient(to bottom,transparent 40%,rgba(0,0,0,.65))"></div>'
+      +'<div style="position:absolute;bottom:16px;left:18px;right:18px;">'
+        +'<div style="font-size:20px;font-weight:800;color:#fff;margin-bottom:4px;">'+b.name+'</div>'
+        +'<div style="font-size:13px;color:rgba(255,255,255,.8);">'+b.loc+'</div>'
+      +'</div>'
+    +'</div>'
+    +'<div style="padding:16px 18px;">'
+      +'<div class="grid3" style="margin-bottom:14px;">'
+        +'<div class="gc"><div class="gl">대상어종</div><div class="gv" style="font-size:11px;">'+b.fish+'</div></div>'
+        +'<div class="gc"><div class="gl">운항시간</div><div class="gv" style="font-size:12px;">'+b.hrs+'</div></div>'
+        +'<div class="gc"><div class="gl">1인 요금</div><div class="gv">'+Math.round(b.price/10000)+'만원</div></div>'
+      +'</div>'
+      +(b.rest?'<div style="display:flex;align-items:center;gap:6px;padding:12px;background:var(--g1);border-radius:10px;margin-bottom:12px;">'
+        +TSVG
+        +'<span style="font-size:12px;color:var(--sub);">T map 주변정보 · 맛집 '+b.rest+'곳 · 숙박 '+(b.hotel||0)+'곳 · 관광 '+(b.sight||0)+'곳</span>'
+      +'</div>':'')
+      +'<div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:10px;">선박 특징</div>'
+      +'<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px;">'
+        +['화장실 완비','구명조끼 제공','어탐기 장착','음료 서비스','낚시장비 대여','쿨박스 보관'].map(function(f){
+          return '<span style="background:var(--g1);border-radius:8px;padding:5px 10px;font-size:12px;color:var(--sub);">'+f+'</span>';
+        }).join('')
+      +'</div>'
+      +'<a class="tmap-btn" style="margin-bottom:10px;" href="https://tmap.life/search?keyword='+encodeURIComponent(b.loc.replace('·',' '))+'" target="_blank">'
+        +'<div class="tmap-logo"><svg viewBox="0 0 32 32" fill="none"><rect x="2" y="4" width="28" height="8" rx="2" fill="#FF4DBB"/><path d="M13 12 Q19 12 19 18 L19 28 L13 28 Z" fill="#4169FF"/></svg></div>'
+        +'<span>T map으로 선착장 길찾기</span><span style="margin-left:auto;">→</span>'
+      +'</a>'
+      +'<button class="go-btn" onclick="closePanel(\'panel-boat\');startPref();" style="margin:0;width:100%;">이 선박으로 출조 예약하기</button>'
+    +'</div>';
+  document.getElementById('boat-body').innerHTML=html;
+  openPanel('panel-boat');
+}
 function closeBoat(){
   document.getElementById('b-overlay').classList.remove('on');
   document.getElementById('bsheet').classList.remove('open');
+}
+// Ensure overlay closes when panel-boat is closed
+var _origClosePanel=closePanel;
+function closePanel(id){
+  _origClosePanel(id);
+  if(id==='panel-boat'){
+    document.getElementById('b-overlay').classList.remove('on');
+    document.getElementById('bsheet').classList.remove('open');
+  }
 }
 
 
@@ -1340,8 +1475,8 @@ function renderPref(){
     html='<div class="pref-ttl">숙박은<br><em>원하시나요</em>?</div>'
       +'<div class="pref-sub">출조 전날 현지 숙박 시 여유로운 출조가 가능해요</div>'
       +'<div class="pref-section"><div class="yn-toggle">'
-        +'<div class="yn-card yes'+(p.stay===true?' on':'')+'" onclick="setStay(true)"><div class="yn-ico">🏠</div><div class="yn-lbl">네, 원해요</div><div class="yn-sub">현지 숙박 포함</div></div>'
-        +'<div class="yn-card no'+(p.stay===false?' on':'')+'" onclick="setStay(false)"><div class="yn-ico">🚗</div><div class="yn-lbl">당일치기</div><div class="yn-sub">당일 이동</div></div>'
+        +'<div class="yn-card yes'+(p.stay===true?' on':'')+'" onclick="setStay(true)"><div class="yn-ico"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div><div class="yn-lbl">네, 원해요</div><div class="yn-sub">현지 숙박 포함</div></div>'
+        +'<div class="yn-card no'+(p.stay===false?' on':'')+'" onclick="setStay(false)"><div class="yn-ico"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 8 12 12 14 14"/></svg></div><div class="yn-lbl">당일치기</div><div class="yn-sub">당일 이동</div></div>'
       +'</div></div>';
     if(p.stay===true){
       html+='<div class="pref-section"><div class="pref-section-ttl">숙박 유형</div><div class="opt-grid">'
@@ -1358,8 +1493,8 @@ function renderPref(){
     html='<div class="pref-ttl">맛집도<br><em>들르실 건가요</em>?</div>'
       +'<div class="pref-sub">고흥 지역 인근 추천 맛집을 코스에 포함시켜 드려요</div>'
       +'<div class="pref-section"><div class="yn-toggle">'
-        +'<div class="yn-card yes'+(p.food===true?' on':'')+'" onclick="setFood(true)"><div class="yn-ico">🍽️</div><div class="yn-lbl">네, 원해요</div><div class="yn-sub">맛집 코스 포함</div></div>'
-        +'<div class="yn-card no'+(p.food===false?' on':'')+'" onclick="setFood(false)"><div class="yn-ico">⏩</div><div class="yn-lbl">패스할게요</div><div class="yn-sub">출조에 집중</div></div>'
+        +'<div class="yn-card yes'+(p.food===true?' on':'')+'" onclick="setFood(true)"><div class="yn-ico"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l19-9-9 19-2-8-8-2z"/></svg></div><div class="yn-lbl">네, 원해요</div><div class="yn-sub">맛집 코스 포함</div></div>'
+        +'<div class="yn-card no'+(p.food===false?' on':'')+'" onclick="setFood(false)"><div class="yn-ico"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="13 17 18 12 13 7"/><polyline points="6 17 11 12 6 7"/></svg></div><div class="yn-lbl">패스할게요</div><div class="yn-sub">출조에 집중</div></div>'
       +'</div></div>';
     if(p.food===true){
       html+='<div class="pref-section"><div class="pref-section-ttl">음식 유형</div><div class="food-row">'
@@ -1424,28 +1559,49 @@ function renderFinal(){
   if(p.stay)items.push({t:'17:00',title:stayNm+' 체크인',move:'차량 15분',desc:'인당 '+stayPrice.toLocaleString()+'원 예상 · 조기 예약 필수.',tags:['조기 예약 추천'],link:'예약하기 →'});
   items.push({t:p.stay?'익일 10:00':'19:30',title:'귀가',move:'약 3시간 30분',desc:'안전 귀가하세요!',tags:[]});
 
+  var fishLoc=G.selBoat?G.selBoat.loc.split('·').pop().trim():(CATCHES.length>0?CATCHES[0].loc:'고흥 영남면');
+  var fishName=G.q||(CATCHES.length>0?CATCHES[0].fish:'낚시');
+  var TI='<svg viewBox="0 0 32 32" fill="none" width="16" height="16"><rect x="2" y="4" width="28" height="8" rx="2" fill="#FF4DBB"/><path d="M13 12 Q19 12 19 18 L19 28 L13 28 Z" fill="#4169FF"/></svg>';
   var html=
-    '<div class="plan-hero">'
-      +'<div class="plan-fish-badge"><span>🎣</span> 전갱이 · 고흥 영남면</div>'
+    // ① TMap Hero 최상단
+    '<div style="background:linear-gradient(160deg,#0a0f1e,#1a2a4a);padding:80px 20px 20px;position:relative;overflow:hidden;">'
+      +'<div style="position:absolute;top:-40px;right:-30px;width:160px;height:160px;background:radial-gradient(circle,rgba(75,159,255,.15),transparent);pointer-events:none;"></div>'
+      +'<div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">'
+        +'<div style="background:linear-gradient(90deg,#7B2FFF,#2ECBFF);border-radius:8px;padding:5px 10px;display:flex;align-items:center;gap:6px;">'
+          +TI
+          +'<span style="font-size:11px;font-weight:700;color:#fff;">T map 출조 플랜</span>'
+        +'</div>'
+        +'<span style="font-size:11px;color:rgba(255,255,255,.5);">AI 맞춤 추천</span>'
+      +'</div>'
+      +'<div style="font-size:11px;color:rgba(75,159,255,.9);font-weight:600;margin-bottom:6px;">'+fishName+' · '+fishLoc+'</div>'
       +'<div class="plan-date-big">'+dateStr+endStr+'</div>'
       +'<div class="plan-name-tag">'+levelLabel+'을 위한 맞춤 출조 플랜 · '+(p.people||'1명')+'</div>'
-      +'<div class="plan-tags">'
+      +'<div class="plan-tags" style="margin-top:12px;">'
         +'<div class="plan-tag hi">조황 ★★★★☆</div>'
         +'<div class="plan-tag">'+boat.name+'</div>'
+        +(G.q?'<div class="plan-tag">'+fishName+'</div>':'')
         +(p.stay?'<div class="plan-tag">숙박 포함</div>':'')
         +(p.food?'<div class="plan-tag">맛집 포함</div>':'')
       +'</div>'
     +'</div>'
+    // ② Stats
     +'<div class="plan-stats">'
       +'<div class="plan-stat"><div class="ps-val">'+Math.round(totalCost/10000)+'<span class="ps-unit">만원~</span></div><div class="ps-lbl">예상 총비용</div></div>'
       +'<div class="plan-stat"><div class="ps-val">'+(p.stay?2:1)+'<span class="ps-unit">일</span></div><div class="ps-lbl">여행 기간</div></div>'
       +'<div class="plan-stat"><div class="ps-val">6h<span class="ps-unit">30m</span></div><div class="ps-lbl">출조 시간</div></div>'
     +'</div>'
-    // Spot
-    +'<div class="plan-card" style="margin-top:16px;">'
+    // ③ TMap 상세 일정 최우선
+    +'<div class="plan-card" style="margin-top:12px;">'
+      +'<div class="pc-head">'
+        +'<div class="pc-ttl">'
+          +'<div style="width:28px;height:28px;border-radius:8px;background:linear-gradient(90deg,#7B2FFF,#2ECBFF);display:flex;align-items:center;justify-content:center;">'+TI+'</div>'
+          +'T map 상세 경로 일정'
+        +'</div>'
+        +'<div class="pc-action" onclick="openTMapRoute()">길 안내 시작 →</div>'
+      +'</div>'
       +'<div class="spot-card" style="margin:0;border-radius:0;">'
-        +'<div class="spot-name">고흥 영남면 앞바다</div>'
-        +'<div class="spot-sub">전라남도 고흥군 영남면 · 수심 8~20m</div>'
+        +'<div class="spot-name">'+(fishLoc||'고흥 영남면 앞바다')+'</div>'
+        +'<div class="spot-sub">'+(G.selBoat?G.selBoat.loc:'전라남도 고흥군')+' · 수심 8~20m</div>'
         +'<div class="spot-stats">'
           +'<div class="sst"><div class="sst-v">★★★★</div><div class="sst-l">오늘 조황</div></div>'
           +'<div class="sst"><div class="sst-v">15m</div><div class="sst-l">추천 수심</div></div>'
@@ -1532,7 +1688,65 @@ function renderFinal(){
 
 function checkAll(){CHECKLIST.forEach(function(_,i){document.getElementById('ck'+i).classList.add('done');});}
 function toggleCheck(i){document.getElementById('ck'+i).classList.toggle('done');}
-function savePlan(){showToast('📅 플랜이 저장되었습니다!');}
+function savePlan(){
+  var p=G.pref, boat=G.selBoat||BOATS[0];
+  var fishName=G.q||(CATCHES.length>0?CATCHES[0].fish:'낚시');
+  var dateStr='날짜 미정';
+  if(p.date){var pts=p.date.split('-');dateStr=pts[1]+'월 '+pts[2]+'일';}
+  var plan={
+    id:Date.now(),
+    fish:fishName,
+    date:dateStr,
+    boat:boat.name,
+    people:p.people||'1명',
+    stay:p.stay,stayType:p.stayType,
+    food:p.food,foodType:p.foodType,
+    loc:boat.loc.split('·').pop().trim()
+  };
+  SAVED_PLANS.unshift(plan);
+  // Close final panel and show saved toast with link
+  closePanel('panel-final');
+  showToast('📅 플랜이 저장되었습니다!');
+  renderSavedPlans();
+}
+
+function renderSavedPlans(){
+  var FOOD_LABEL={seafood:'활어·해산물',grill:'생선구이',korean:'백반·한정식',meat:'고기·구이',cafe:'오션뷰 카페'};
+  var STAY_LABEL={camping:'캠핑',pension:'펜션',hotel:'호텔',motel:'모텔/GH'};
+  if(!SAVED_PLANS.length){
+    document.getElementById('plans-body').innerHTML='<div style="padding:40px 20px;text-align:center;color:var(--muted);font-size:14px;">저장된 플랜이 없습니다</div>';
+    return;
+  }
+  document.getElementById('plans-body').innerHTML=SAVED_PLANS.map(function(pl,i){
+    var tags=[pl.fish, pl.people];
+    if(pl.stay) tags.push(STAY_LABEL[pl.stayType]||'숙박');
+    if(pl.food) tags.push(FOOD_LABEL[pl.foodType]||'맛집');
+    return '<div style="margin:12px 16px;background:#fff;border:1px solid var(--g2);border-radius:16px;overflow:hidden;">'
+      +'<div style="background:linear-gradient(135deg,#0d1f3c,#1a3a6b);padding:14px 16px;">'
+        +'<div style="font-size:12px;color:rgba(255,255,255,.6);margin-bottom:4px;">'+pl.date+'</div>'
+        +'<div style="font-size:17px;font-weight:800;color:#fff;">'+pl.fish+' 출조 플랜</div>'
+        +'<div style="font-size:12px;color:rgba(255,255,255,.7);margin-top:4px;">'+pl.boat+' · '+pl.loc+'</div>'
+      +'</div>'
+      +'<div style="padding:12px 16px;display:flex;flex-wrap:wrap;gap:6px;">'
+        +tags.map(function(t){return '<span style="background:var(--g1);border-radius:20px;padding:4px 10px;font-size:12px;color:var(--sub);">'+t+'</span>';}).join('')
+      +'</div>'
+      +'<div style="padding:0 16px 14px;display:flex;gap:8px;">'
+        +'<button onclick="deletePlan('+i+')" style="flex:1;padding:10px;border:1.5px solid var(--g2);border-radius:10px;background:#fff;font-size:13px;color:var(--muted);cursor:pointer;font-family:inherit;">삭제</button>'
+        +'<button onclick="G.pref.step=1;renderPref();openPanel(\'panel-pref\');" style="flex:2;padding:10px;border:none;border-radius:10px;background:var(--blue);color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">다시 출조 예약</button>'
+      +'</div>'
+    +'</div>';
+  }).join('');
+}
+
+function deletePlan(i){
+  SAVED_PLANS.splice(i,1);
+  renderSavedPlans();
+}
+
+function openSavedPlans(){
+  renderSavedPlans();
+  openPanel('panel-plans');
+}
 
 function openTMapRoute(){
   var boat=G.selBoat||BOATS[0];
