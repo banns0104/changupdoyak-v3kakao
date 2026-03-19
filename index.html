@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>어바웃피싱 포인트맵</title>
-<!-- ★ 카카오맵 연동 -->
+<!-- ★ 티맵 연동 (카카오맵 엔진) -->
 <script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=74eb939f1bcf90f450e7b1c3055eb904&libraries=services"></script>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -112,8 +112,9 @@ body{background:#1a1a2e;display:flex;justify-content:center;align-items:center;m
 .ncard-name{font-size:12px;font-weight:600;color:var(--text);}
 .ncard-price{font-size:11px;color:var(--blue);margin-top:2px;}
 .go-btn{display:block;width:calc(100% - 36px);margin:16px 18px 8px;background:var(--blue);color:#fff;border:none;border-radius:13px;padding:17px;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;}
-.kakao-btn{display:flex;align-items:center;gap:8px;padding:11px 14px;background:#FEE500;border-radius:10px;color:#3C1E1E;font-size:13px;font-weight:700;text-decoration:none;margin-bottom:10px;}
-.kl{width:22px;height:22px;border-radius:4px;background:#3C1E1E;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#FEE500;flex-shrink:0;}
+.tmap-btn{display:flex;align-items:center;gap:8px;padding:11px 14px;background:linear-gradient(90deg,#7B2FFF 0%,#2ECBFF 100%);border-radius:10px;color:#fff;font-size:13px;font-weight:700;text-decoration:none;margin-bottom:10px;cursor:pointer;}
+.tmap-logo{width:22px;height:22px;border-radius:4px;background:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.tmap-logo svg{width:14px;height:14px;}
 
 /* Boat sheet */
 .overlay{position:absolute;inset:0;background:rgba(0,0,0,0);z-index:70;pointer-events:none;transition:background .3s;}
@@ -131,61 +132,460 @@ body{background:#1a1a2e;display:flex;justify-content:center;align-items:center;m
 .bbtn-o{flex:1;padding:15px;border:1.5px solid var(--g2);border-radius:12px;font-size:14px;font-weight:600;background:#fff;color:var(--text);cursor:pointer;font-family:inherit;}
 .bbtn-f{flex:2;padding:15px;border-radius:12px;font-size:14px;font-weight:700;background:var(--blue);color:#fff;border:none;cursor:pointer;font-family:inherit;}
 
-/* Pref */
-.pref-back{height:44px;padding:0 14px;display:flex;align-items:center;gap:8px;position:absolute;top:0;left:0;right:0;z-index:5;}
-.step-lbl{font-size:14px;color:var(--muted);}
-.pbar{height:4px;background:var(--g2);border-radius:2px;margin:48px 18px 0;overflow:hidden;}
-.pfill{height:100%;background:var(--blue);border-radius:2px;transition:width .4s;}
-.ptitle{font-size:22px;font-weight:800;color:var(--text);padding:20px 18px 6px;}
-.psub{font-size:14px;color:var(--sub);padding:0 18px 20px;line-height:1.6;}
-.psub2{font-size:15px;font-weight:700;color:var(--text);padding:18px 18px 10px;}
-.pref-scroll{overflow-y:auto;flex:1;padding-bottom:84px;}
-.yn{display:flex;gap:10px;padding:0 18px 4px;}
-.yn-btn{flex:1;padding:16px;border-radius:13px;border:2px solid var(--g2);font-size:16px;font-weight:700;cursor:pointer;background:#fff;font-family:inherit;transition:all .2s;}
-.yn-btn.y.on{border-color:var(--blue);background:var(--blue);color:#fff;}
-.yn-btn.n.on{border-color:var(--g2);background:var(--g1);color:var(--sub);}
-.ogrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 18px;}
-.ocard{border:2px solid var(--g2);border-radius:15px;padding:18px 12px;cursor:pointer;text-align:center;background:#fff;transition:all .2s;}
-.ocard.on{border-color:var(--blue);background:rgba(26,107,255,.05);}
-.ocard:active{transform:scale(.97);}
-.oemo{font-size:28px;margin-bottom:8px;}
-.olbl{font-size:14px;font-weight:700;color:var(--text);}
-.odesc{font-size:11px;color:var(--muted);margin-top:3px;}
-.date-chips{display:flex;gap:8px;padding:4px 18px 8px;overflow-x:auto;scrollbar-width:none;}
-.date-chips::-webkit-scrollbar{display:none;}
-.dc{flex-shrink:0;padding:10px 16px;border-radius:20px;border:2px solid var(--g2);cursor:pointer;background:#fff;transition:all .2s;white-space:nowrap;text-align:center;}
-.dc.on{border-color:var(--blue);background:var(--blue);color:#fff;}
-.dc-date{font-size:13px;font-weight:600;}
-.dc-day{font-size:11px;opacity:.75;margin-top:1px;}
-.next-btn{position:absolute;bottom:20px;left:18px;right:18px;background:var(--blue);color:#fff;border:none;border-radius:13px;padding:17px;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;transition:opacity .2s;}
-.next-btn:disabled{opacity:.3;cursor:not-allowed;}
+/* ── PREF PANEL — Premium Ocean Dark Theme ── */
+#panel-pref{background:#0a0f1e;}
+.pref-header{
+  position:absolute;top:0;left:0;right:0;
+  height:44px;padding:0 16px;
+  display:flex;align-items:center;justify-content:space-between;
+  z-index:5;
+}
+.pref-back-btn{
+  width:36px;height:36px;border-radius:50%;
+  background:rgba(255,255,255,.1);
+  display:flex;align-items:center;justify-content:center;cursor:pointer;
+  transition:background .2s;
+}
+.pref-back-btn:active{background:rgba(255,255,255,.2);}
+.pref-back-btn svg{stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;width:20px;height:20px;}
+.pref-step-badge{
+  background:rgba(255,255,255,.1);
+  border:1px solid rgba(255,255,255,.15);
+  color:rgba(255,255,255,.7);
+  font-size:12px;font-weight:600;
+  padding:5px 12px;border-radius:20px;
+}
+/* Progress dots */
+.pref-progress{
+  display:flex;align-items:center;justify-content:center;
+  gap:8px;padding:54px 0 0;
+}
+.prog-dot{
+  width:6px;height:6px;border-radius:3px;
+  background:rgba(255,255,255,.2);
+  transition:all .35s cubic-bezier(.4,0,.2,1);
+}
+.prog-dot.done{background:rgba(255,255,255,.5);width:6px;}
+.prog-dot.active{background:#fff;width:24px;}
 
-/* Final */
-.plan-scroll{flex:1;overflow-y:auto;padding-bottom:80px;margin-top:44px;}
-.plan-hdr{padding:16px 18px 14px;border-bottom:1px solid var(--g1);}
-.plan-date{font-size:26px;font-weight:800;color:var(--text);}
-.plan-name{font-size:17px;font-weight:700;color:var(--blue);margin-top:4px;}
-.plan-meta{display:flex;align-items:center;gap:6px;margin-top:7px;font-size:13px;color:var(--muted);}
-.kmap-badge{width:22px;height:22px;border-radius:5px;background:#FEE500;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;color:#3C1E1E;}
-.day-ttl{font-size:17px;font-weight:700;padding:14px 18px 6px;}
-.day-tags{display:flex;gap:6px;padding:0 18px 12px;flex-wrap:wrap;}
-.dtag{background:var(--g1);border-radius:20px;padding:5px 12px;font-size:12px;color:var(--sub);}
-.tl{padding:0 18px;}
-.tl-row{display:flex;gap:12px;position:relative;}
-.tl-row:not(:last-child)::after{content:'';position:absolute;left:46px;top:28px;bottom:-6px;border-left:1.5px dashed var(--g2);}
-.tl-time{width:32px;font-size:12px;font-weight:600;color:var(--muted);flex-shrink:0;padding-top:4px;text-align:right;}
-.tl-dot{width:10px;height:10px;border-radius:50%;background:#fff;border:2.5px solid var(--g2);flex-shrink:0;margin-top:5px;}
-.tl-body{flex:1;padding-bottom:18px;}
-.tl-title{font-size:16px;font-weight:600;color:var(--text);}
-.tl-move{font-size:12px;color:var(--muted);margin-top:2px;display:flex;align-items:center;gap:3px;}
-.tl-desc{font-size:13px;color:var(--sub);margin-top:4px;line-height:1.55;}
-.tl-link{font-size:13px;color:var(--blue);margin-top:5px;cursor:pointer;}
-.plan-actions{position:absolute;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--g1);padding:10px 18px 26px;display:flex;gap:10px;}
-.pa{flex:1;padding:14px;border-radius:12px;font-size:15px;font-weight:700;border:none;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;}
-.pa-yes{background:var(--blue);color:#fff;}
+/* Pref scroll */
+.pref-scroll{
+  flex:1;overflow-y:auto;
+  padding:0 0 100px;
+  scrollbar-width:none;
+}
+.pref-scroll::-webkit-scrollbar{display:none;}
+
+/* Section heading */
+.pref-ttl{
+  font-size:26px;font-weight:800;
+  color:#fff;line-height:1.25;
+  padding:24px 20px 6px;
+  letter-spacing:-.3px;
+}
+.pref-ttl em{color:#4B9FFF;font-style:normal;}
+.pref-sub{
+  font-size:14px;color:rgba(255,255,255,.5);
+  padding:0 20px 20px;line-height:1.6;
+}
+
+/* Date chips */
+.date-scroll{display:flex;gap:10px;padding:4px 20px 16px;overflow-x:auto;scrollbar-width:none;}
+.date-scroll::-webkit-scrollbar{display:none;}
+.date-chip{
+  flex-shrink:0;
+  background:rgba(255,255,255,.07);
+  border:1.5px solid rgba(255,255,255,.1);
+  border-radius:16px;padding:12px 14px;
+  cursor:pointer;transition:all .2s;min-width:80px;text-align:center;
+}
+.date-chip.on{
+  background:rgba(75,159,255,.2);
+  border-color:#4B9FFF;
+}
+.date-chip:active{transform:scale(.96);}
+.dc-mo{font-size:11px;color:rgba(255,255,255,.4);margin-bottom:3px;}
+.dc-d{font-size:20px;font-weight:800;color:#fff;}
+.dc-wd{font-size:11px;color:rgba(255,255,255,.45);margin-top:2px;}
+.dc-tide{font-size:10px;margin-top:5px;padding:2px 6px;border-radius:6px;font-weight:600;}
+.dc-tide.good{background:rgba(52,199,89,.2);color:#34C759;}
+.dc-tide.ok{background:rgba(255,149,0,.2);color:#FF9500;}
+.dc-tide.bad{background:rgba(255,59,48,.15);color:#FF3B30;}
+
+/* Section divider */
+.pref-section{padding:0 20px;margin-bottom:16px;}
+.pref-section-ttl{
+  font-size:12px;font-weight:700;
+  color:rgba(255,255,255,.4);
+  letter-spacing:.8px;text-transform:uppercase;
+  margin-bottom:12px;
+}
+
+/* People row */
+.people-row{display:flex;gap:8px;}
+.people-btn{
+  flex:1;height:52px;border-radius:12px;
+  background:rgba(255,255,255,.07);
+  border:1.5px solid rgba(255,255,255,.1);
+  color:#fff;font-family:inherit;
+  font-size:14px;font-weight:600;
+  cursor:pointer;transition:all .2s;
+  display:flex;align-items:center;justify-content:center;gap:6px;
+}
+.people-btn.on{background:rgba(75,159,255,.2);border-color:#4B9FFF;}
+.people-btn:active{transform:scale(.97);}
+
+/* Level cards */
+.level-row{display:flex;gap:8px;}
+.level-card{
+  flex:1;border-radius:14px;
+  background:rgba(255,255,255,.07);
+  border:1.5px solid rgba(255,255,255,.1);
+  padding:14px 10px;cursor:pointer;
+  transition:all .2s;text-align:center;
+}
+.level-card.on{background:rgba(75,159,255,.2);border-color:#4B9FFF;}
+.level-card:active{transform:scale(.97);}
+.lv-ico{font-size:22px;margin-bottom:6px;}
+.lv-name{font-size:13px;font-weight:700;color:#fff;}
+.lv-desc{font-size:10px;color:rgba(255,255,255,.4);margin-top:3px;}
+
+/* Big Y/N toggle */
+.yn-toggle{display:flex;gap:10px;padding:0;}
+.yn-card{
+  flex:1;border-radius:16px;
+  border:1.5px solid rgba(255,255,255,.1);
+  background:rgba(255,255,255,.05);
+  padding:20px 12px;cursor:pointer;
+  transition:all .25s;text-align:center;
+}
+.yn-card.yes.on{background:rgba(75,159,255,.2);border-color:#4B9FFF;}
+.yn-card.no.on{background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.2);}
+.yn-card:active{transform:scale(.97);}
+.yn-ico{font-size:28px;margin-bottom:8px;}
+.yn-lbl{font-size:15px;font-weight:700;color:#fff;}
+.yn-sub{font-size:11px;color:rgba(255,255,255,.4);margin-top:4px;}
+
+/* Option grid */
+.opt-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.opt-card{
+  border-radius:14px;
+  background:rgba(255,255,255,.07);
+  border:1.5px solid rgba(255,255,255,.1);
+  padding:16px 12px;cursor:pointer;
+  transition:all .2s;position:relative;overflow:hidden;
+}
+.opt-card.on{background:rgba(75,159,255,.15);border-color:#4B9FFF;}
+.opt-card:active{transform:scale(.97);}
+.opt-card::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(255,255,255,.03),transparent);
+}
+.opt-ico{font-size:24px;margin-bottom:8px;}
+.opt-name{font-size:13px;font-weight:700;color:#fff;}
+.opt-desc{font-size:11px;color:rgba(255,255,255,.4);margin-top:3px;}
+.opt-price{
+  font-size:11px;font-weight:600;
+  color:#4B9FFF;margin-top:5px;
+}
+.opt-check{
+  position:absolute;top:10px;right:10px;
+  width:18px;height:18px;border-radius:50%;
+  background:#4B9FFF;
+  display:none;align-items:center;justify-content:center;
+}
+.opt-card.on .opt-check{display:flex;}
+.opt-check svg{width:10px;height:10px;stroke:#fff;fill:none;stroke-width:3;stroke-linecap:round;}
+
+/* Food chips (horizontal scroll) */
+.food-row{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding:0;}
+.food-row::-webkit-scrollbar{display:none;}
+.food-chip{
+  flex-shrink:0;
+  background:rgba(255,255,255,.07);
+  border:1.5px solid rgba(255,255,255,.1);
+  border-radius:50px;
+  padding:10px 16px;cursor:pointer;
+  transition:all .2s;
+  display:flex;align-items:center;gap:7px;
+  white-space:nowrap;
+}
+.food-chip.on{background:rgba(75,159,255,.2);border-color:#4B9FFF;}
+.food-chip-ico{font-size:16px;}
+.food-chip-txt{font-size:13px;font-weight:600;color:#fff;}
+
+/* CTA next button */
+.pref-next{
+  position:absolute;bottom:0;left:0;right:0;
+  padding:16px 20px calc(16px + env(safe-area-inset-bottom,0px));
+  background:linear-gradient(to top,#0a0f1e 70%,transparent);
+}
+.pref-next-btn{
+  width:100%;background:linear-gradient(135deg,#1A6BFF,#0d4fd4);
+  color:#fff;border:none;border-radius:16px;
+  padding:18px;font-size:16px;font-weight:700;
+  cursor:pointer;font-family:inherit;
+  box-shadow:0 8px 24px rgba(26,107,255,.4);
+  transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;
+}
+.pref-next-btn:disabled{opacity:.3;cursor:not-allowed;box-shadow:none;}
+.pref-next-btn:not(:disabled):active{transform:scale(.98);}
+
+/* ── FINAL PLAN — Light Editorial Premium ── */
+#panel-final{background:#f8f9fc;}
+.final-back{
+  position:absolute;top:44px;left:14px;z-index:10;
+  width:36px;height:36px;border-radius:50%;
+  background:#fff;box-shadow:0 2px 10px rgba(0,0,0,.1);
+  display:flex;align-items:center;justify-content:center;cursor:pointer;
+}
+.final-back svg{stroke:var(--text);fill:none;stroke-width:2;stroke-linecap:round;width:20px;height:20px;}
+.plan-scroll{flex:1;overflow-y:auto;padding-bottom:130px;margin-top:0;}
+
+/* Hero card */
+.plan-hero{
+  background:linear-gradient(160deg,#0d1f3c 0%,#1a3a6b 60%,#0d3358 100%);
+  padding:80px 20px 28px;
+  position:relative;overflow:hidden;
+}
+.plan-hero::before{
+  content:'';position:absolute;
+  top:-60px;right:-40px;
+  width:200px;height:200px;
+  background:radial-gradient(circle,rgba(75,159,255,.2),transparent 70%);
+  pointer-events:none;
+}
+.plan-hero::after{
+  content:'';position:absolute;
+  bottom:-30px;left:-20px;
+  width:160px;height:160px;
+  background:radial-gradient(circle,rgba(0,200,150,.1),transparent 70%);
+  pointer-events:none;
+}
+.plan-fish-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  background:rgba(75,159,255,.2);
+  border:1px solid rgba(75,159,255,.3);
+  border-radius:20px;padding:5px 12px;
+  font-size:12px;font-weight:600;color:#4B9FFF;
+  margin-bottom:12px;
+}
+.plan-date-big{font-size:28px;font-weight:800;color:#fff;line-height:1.2;letter-spacing:-.3px;}
+.plan-name-tag{font-size:14px;color:rgba(255,255,255,.6);margin-top:6px;}
+.plan-tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:14px;}
+.plan-tag{
+  background:rgba(255,255,255,.1);
+  border:1px solid rgba(255,255,255,.15);
+  border-radius:20px;padding:5px 12px;
+  font-size:12px;color:rgba(255,255,255,.8);
+}
+.plan-tag.hi{background:rgba(52,199,89,.2);border-color:rgba(52,199,89,.3);color:#34C759;}
+
+/* Stats row */
+.plan-stats{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:1px;background:#e8ecf0;
+}
+.plan-stat{
+  background:#fff;padding:16px 8px;text-align:center;
+}
+.ps-val{font-size:18px;font-weight:800;color:var(--text);}
+.ps-unit{font-size:11px;color:var(--muted);margin-left:2px;}
+.ps-lbl{font-size:11px;color:var(--muted);margin-top:3px;}
+
+/* Section card */
+.plan-card{
+  background:#fff;border-radius:20px;
+  margin:12px 16px 0;
+  overflow:hidden;
+  box-shadow:0 2px 12px rgba(0,0,0,.06);
+}
+.pc-head{
+  padding:16px 18px 12px;
+  border-bottom:1px solid var(--g1);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.pc-ttl{
+  font-size:13px;font-weight:700;
+  color:var(--text);
+  display:flex;align-items:center;gap:8px;
+}
+.pc-ico{
+  width:28px;height:28px;border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;
+}
+.pc-action{font-size:12px;color:var(--blue);font-weight:600;cursor:pointer;}
+
+/* Forecast strip */
+.forecast-row{display:flex;overflow-x:auto;scrollbar-width:none;padding:12px 18px;}
+.forecast-row::-webkit-scrollbar{display:none;}
+.fc-item{flex-shrink:0;text-align:center;min-width:52px;padding:8px 4px;}
+.fc-time{font-size:10px;color:var(--muted);margin-bottom:6px;}
+.fc-ico{font-size:18px;margin-bottom:5px;}
+.fc-temp{font-size:12px;font-weight:700;color:var(--text);}
+.fc-wind{font-size:10px;color:var(--muted);margin-top:2px;}
+
+/* Tide chart */
+.tide-chart{padding:12px 18px 16px;}
+.tide-bar-wrap{display:flex;align-items:flex-end;gap:4px;height:48px;margin-bottom:6px;}
+.tide-bar{
+  flex:1;border-radius:4px 4px 0 0;
+  transition:background .2s;
+  min-width:0;
+}
+.tide-bar.best{background:#34C759;}
+.tide-bar.good{background:#4B9FFF;}
+.tide-bar.ok{background:#E5E5EA;}
+.tide-labels{display:flex;justify-content:space-between;padding:0 2px;}
+.tide-lbl{font-size:9px;color:var(--muted);}
+.tide-legend{display:flex;gap:12px;margin-top:8px;}
+.tl-item{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--sub);}
+.tl-dot{width:8px;height:8px;border-radius:2px;}
+
+/* Timeline */
+.tl-card{padding:16px 18px;}
+.tl2-row{display:flex;gap:0;position:relative;padding-left:56px;margin-bottom:20px;}
+.tl2-row:last-child{margin-bottom:0;}
+.tl2-time{
+  position:absolute;left:0;top:0;
+  width:44px;text-align:right;
+  font-size:11px;font-weight:700;color:var(--muted);
+  line-height:1.3;
+}
+.tl2-line{
+  position:absolute;left:52px;top:18px;bottom:-20px;
+  width:1.5px;background:var(--g2);
+}
+.tl2-row:last-child .tl2-line{display:none;}
+.tl2-dot{
+  position:absolute;left:48px;top:4px;
+  width:10px;height:10px;border-radius:50%;
+  background:#fff;border:2.5px solid var(--g2);
+  z-index:1;
+}
+.tl2-dot.active{border-color:var(--blue);background:var(--blue);}
+.tl2-body{flex:1;}
+.tl2-title{font-size:15px;font-weight:700;color:var(--text);line-height:1.3;}
+.tl2-move{
+  display:inline-flex;align-items:center;gap:4px;
+  background:var(--g1);border-radius:6px;
+  padding:3px 8px;font-size:11px;color:var(--sub);
+  margin:4px 0;font-weight:500;
+}
+.tl2-desc{font-size:13px;color:var(--sub);line-height:1.55;margin-top:4px;}
+.tl2-link{
+  display:inline-flex;align-items:center;gap:4px;
+  font-size:12px;color:var(--blue);font-weight:600;
+  margin-top:6px;cursor:pointer;
+}
+.tl2-tag-row{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px;}
+.tl2-tag{
+  background:rgba(26,107,255,.08);
+  border-radius:6px;padding:3px 8px;
+  font-size:11px;color:var(--blue);font-weight:500;
+}
+
+/* Cost breakdown */
+.cost-list{padding:0 18px 16px;}
+.cost-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--g1);}
+.cost-row:last-child{border-bottom:none;}
+.cost-label{font-size:14px;color:var(--text);}
+.cost-label span{font-size:11px;color:var(--muted);margin-left:4px;}
+.cost-val{font-size:14px;font-weight:700;color:var(--text);}
+.cost-total{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;background:rgba(26,107,255,.06);margin:0;}
+.cost-total-lbl{font-size:14px;font-weight:700;color:var(--text);}
+.cost-total-val{font-size:20px;font-weight:800;color:var(--blue);}
+
+/* Checklist */
+.check-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:12px 18px 16px;}
+.check-item{
+  display:flex;align-items:center;gap:8px;
+  background:var(--g1);border-radius:10px;
+  padding:10px 12px;cursor:pointer;
+}
+.check-item.done .check-box{background:var(--blue);border-color:var(--blue);}
+.check-item.done .check-box svg{display:block;}
+.check-item.done .check-txt{color:var(--muted);text-decoration:line-through;}
+.check-box{
+  width:18px;height:18px;flex-shrink:0;
+  border-radius:5px;border:2px solid var(--g2);
+  background:#fff;display:flex;align-items:center;justify-content:center;
+}
+.check-box svg{width:10px;height:10px;stroke:#fff;fill:none;stroke-width:3;stroke-linecap:round;display:none;}
+.check-txt{font-size:12px;font-weight:500;color:var(--text);}
+
+/* Spot card */
+.spot-card{
+  margin:0 18px 16px;
+  background:linear-gradient(135deg,#0d1f3c,#1a3a6b);
+  border-radius:14px;padding:16px;
+  position:relative;overflow:hidden;
+}
+.spot-card::before{
+  content:'';position:absolute;
+  top:-30px;right:-30px;width:100px;height:100px;
+  background:radial-gradient(circle,rgba(75,159,255,.2),transparent);
+}
+.spot-name{font-size:15px;font-weight:700;color:#fff;margin-bottom:3px;}
+.spot-sub{font-size:12px;color:rgba(255,255,255,.5);margin-bottom:12px;}
+.spot-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.sst{text-align:center;}
+.sst-v{font-size:16px;font-weight:800;color:#fff;}
+.sst-l{font-size:10px;color:rgba(255,255,255,.45);margin-top:2px;}
+
+/* Recommended cards */
+.rec-row{display:flex;gap:10px;overflow-x:auto;scrollbar-width:none;padding:0 18px 16px;}
+.rec-row::-webkit-scrollbar{display:none;}
+.rec-card{
+  flex-shrink:0;width:160px;border-radius:12px;
+  background:var(--g1);overflow:hidden;cursor:pointer;
+}
+.rec-img{height:80px;display:flex;align-items:center;justify-content:center;font-size:28px;}
+.rec-info{padding:10px 12px;}
+.rec-name{font-size:12px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.rec-meta{font-size:11px;color:var(--muted);margin-top:3px;}
+.rec-price{font-size:12px;font-weight:700;color:var(--blue);margin-top:4px;}
+
+/* Bottom action */
+.plan-actions{
+  position:absolute;bottom:0;left:0;right:0;
+  background:#fff;
+  box-shadow:0 -8px 24px rgba(0,0,0,.08);
+  padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));
+  display:flex;gap:10px;
+}
+.pa{
+  flex:1;padding:14px;border-radius:14px;
+  font-size:15px;font-weight:700;border:none;
+  cursor:pointer;font-family:inherit;
+  display:flex;align-items:center;justify-content:center;gap:6px;
+  transition:all .2s;
+}
+.pa:active{transform:scale(.98);}
+.pa-yes{background:var(--blue);color:#fff;box-shadow:0 4px 16px rgba(26,107,255,.35);}
 .pa-no{background:var(--g1);color:var(--sub);}
 
-/* Cluster marker */
+.tmap-badge-sm{width:14px;height:14px;border-radius:3px;background:linear-gradient(90deg,#7B2FFF 0%,#2ECBFF 100%);display:flex;align-items:center;justify-content:center;}
+.tmap-badge-sm svg{width:12px;height:12px;}
+/* TMap navigation CTA */
+.tmap-nav-btn{
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  background:linear-gradient(90deg,#7B2FFF 0%,#2ECBFF 100%);
+  color:#fff;border:none;border-radius:14px;
+  padding:16px 20px;font-size:15px;font-weight:700;
+  cursor:pointer;font-family:inherit;width:100%;
+  box-shadow:0 6px 20px rgba(123,47,255,.35);
+  transition:all .2s;
+}
+.tmap-nav-btn:active{transform:scale(.98);}
+.tmap-nav-btn svg{width:20px;height:20px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+/* Marker drop animation */
+@keyframes markerDrop{0%{opacity:0;transform:translate(-50%,-50%) scale(.3) translateY(-30px);}60%{transform:translate(-50%,-50%) scale(1.18) translateY(4px);}80%{transform:translate(-50%,-50%) scale(.95);}100%{opacity:1;transform:translate(-50%,-50%) scale(1);}}
+@keyframes markerPulse{0%{box-shadow:0 2px 8px rgba(26,107,255,.5),0 0 0 0 rgba(26,107,255,.45);}70%{box-shadow:0 2px 8px rgba(26,107,255,.5),0 0 0 16px rgba(26,107,255,0);}100%{box-shadow:0 2px 8px rgba(26,107,255,.5),0 0 0 0 rgba(26,107,255,0);}}
+.dm-anim{animation:markerDrop .42s cubic-bezier(.34,1.56,.64,1) both;}
+.dm-pulse .dm{animation:markerPulse 1.4s ease-out 0.3s;}
+.bm-anim{animation:markerDrop .42s cubic-bezier(.34,1.56,.64,1) both;}
 .cm{border-radius:50%;background:rgba(70,105,230,.88);border:2.5px solid rgba(255,255,255,.7);color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 14px rgba(70,105,230,.5);cursor:pointer;font-family:'Noto Sans KR',sans-serif;}
 /* Catch marker */
 .dm-wrap{cursor:pointer;}
@@ -278,18 +678,25 @@ body{background:#1a1a2e;display:flex;justify-content:center;align-items:center;m
   </div>
 
   <div class="panel" id="panel-pref">
-    <div class="pref-back">
-      <div style="cursor:pointer;" onclick="prefBack()"><svg viewBox="0 0 22 22" width="22" height="22"><polyline points="14 18 8 11 14 4" stroke="var(--text)" stroke-width="2" stroke-linecap="round" fill="none"/></svg></div>
-      <span class="step-lbl" id="step-lbl"></span>
+    <div class="pref-header">
+      <div class="pref-back-btn" onclick="prefBack()">
+        <svg viewBox="0 0 22 22"><polyline points="14 18 8 11 14 4"/></svg>
+      </div>
+      <div class="pref-step-badge" id="step-lbl">1 / 3</div>
     </div>
-    <div class="pbar"><div class="pfill" id="pfill"></div></div>
+    <div class="pref-progress" id="pref-dots"></div>
     <div class="pref-scroll" id="pref-body"></div>
-    <button class="next-btn" id="next-btn" onclick="prefNext()">다음</button>
+    <div class="pref-next">
+      <button class="pref-next-btn" id="next-btn" onclick="prefNext()">
+        <span id="next-txt">다음</span>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
+      </button>
+    </div>
   </div>
 
   <div class="panel" id="panel-final">
-    <div style="position:absolute;top:44px;left:14px;z-index:5;cursor:pointer;" onclick="closePanel('panel-final')">
-      <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><polyline points="14 18 8 11 14 4" stroke="var(--text)" stroke-width="2" stroke-linecap="round"/></svg>
+    <div class="final-back" onclick="closePanel('panel-final')">
+      <svg viewBox="0 0 22 22"><polyline points="14 18 8 11 14 4"/></svg>
     </div>
     <div class="plan-scroll" id="final-body"></div>
     <div class="plan-actions" id="final-acts"></div>
@@ -300,41 +707,128 @@ body{background:#1a1a2e;display:flex;justify-content:center;align-items:center;m
 
 <script>
 // ── DATA ─────────────────────────────────────────────────────
-var CATCHES=[
-  {id:1,fish:'전갱이',angler:'옹이아빠',date:'10월 30일',loc:'고흥 영남면',method:'루어낚시',rig:'스피닝베이트',size:'37cm',weight:'1.3kg',count:3,lat:34.593,lng:127.277,tide:'사리',wind:'2.1m/s 북동',bar:'1023.6hpa',wave:'0.3m'},
-  {id:2,fish:'전갱이',angler:'낚시왕',date:'10월 30일',loc:'고흥 영남면',method:'루어낚시',rig:'스피닝베이트',size:'32cm',weight:'0.9kg',count:2,lat:34.573,lng:127.312,starred:true},
-  {id:3,fish:'전갱이',angler:'바다사나이',date:'10월 30일',loc:'고흥 영남면',method:'루어낚시',rig:'스피닝베이트',size:'35cm',weight:'1.1kg',count:5,lat:34.612,lng:127.245},
-  {id:4,fish:'전갱이',angler:'고흥낚시러버',date:'10월 30일',loc:'고흥 영남면',method:'루어낚시',rig:'스피닝베이트',size:'40cm',weight:'1.5kg',count:4,lat:34.558,lng:127.291},
-];
+// ── 지역별 풍부한 조과 데이터 (어종 다양화) ───────────────────
+var ALL_CATCHES = {
+  // 경기·인천 (볼락,우럭,광어,주꾸미,쭈꾸미,숭어)
+  c0:[
+    {id:101,fish:'볼락',angler:'야간마스터',date:'3월 19일',loc:'인천 영흥도',method:'루어낚시',rig:'지그헤드 2g',size:'28cm',weight:'0.4kg',count:8,lat:37.28,lng:126.52,tide:'사리',wind:'2.5m/s 북서',bar:'1018hpa',wave:'0.4m',memo:'영흥도 야간 볼락 8마리! 마이크로지그 핑크에 폭발적 입질.',tags:['#볼락','#영흥도','#야간루어','#마릿수']},
+    {id:102,fish:'우럭',angler:'서해암초꾼',date:'3월 19일',loc:'인천 덕적도',method:'선상낚시',rig:'다운샷리그',size:'45cm',weight:'1.4kg',count:5,lat:37.22,lng:126.15,tide:'조금',wind:'1.8m/s 서',bar:'1021hpa',wave:'0.3m',memo:'덕적도 암초지대 우럭 5마리. 씨알 크고 힘 좋아요!',tags:['#우럭','#덕적도','#선상','#암초']},
+    {id:103,fish:'광어',angler:'플랫피쉬헌터',date:'3월 18일',loc:'인천 무의도',method:'루어낚시',rig:'지그헤드웜',size:'58cm',weight:'2.4kg',count:2,lat:37.39,lng:126.42,tide:'무시',wind:'3.0m/s 북',bar:'1016hpa',wave:'0.5m',memo:'무의도 광어 58cm 대물! 핑크웜 12cm에 히트했어요.',tags:['#광어','#무의도','#대물','#루어']},
+    {id:104,fish:'주꾸미',angler:'주꾸미왕이씨',date:'3월 18일',loc:'인천 강화도',method:'루어낚시',rig:'에기',size:'18cm',weight:'0.2kg',count:22,lat:37.55,lng:126.48,tide:'한사리',wind:'1.5m/s 남서',bar:'1020hpa',wave:'0.2m',memo:'강화도 주꾸미 시즌 개막! 에기 3호로 22마리 대박.',tags:['#주꾸미','#강화도','#에기','#마릿수']},
+    {id:105,fish:'광어',angler:'인천플랫',date:'3월 17일',loc:'인천 자월도',method:'루어낚시',rig:'지그헤드웜',size:'52cm',weight:'2.0kg',count:1,lat:37.15,lng:126.32,tide:'사리',wind:'2.0m/s 북동',bar:'1019hpa',wave:'0.4m',memo:'자월도 광어 52cm! 수심 15m 모래밭 포인트.',tags:['#광어','#자월도','#대물']},
+    {id:106,fish:'우럭',angler:'영종도꾼',date:'3월 17일',loc:'인천 영종도',method:'선상낚시',rig:'지그헤드',size:'38cm',weight:'0.9kg',count:7,lat:37.48,lng:126.55,tide:'조금',wind:'2.2m/s 서북',bar:'1020hpa',wave:'0.3m',memo:'영종도 우럭 7마리. 입질 시원하고 마릿수 좋았어요.',tags:['#우럭','#영종도','#마릿수']},
+    {id:107,fish:'숭어',angler:'갯바위숭어',date:'3월 16일',loc:'인천 소래포구',method:'갯바위낚시',rig:'막대찌',size:'42cm',weight:'1.1kg',count:4,lat:37.43,lng:126.72,tide:'무시',wind:'1.0m/s 남',bar:'1022hpa',wave:'0.1m',memo:'소래포구 숭어 4마리. 봄 숭어 씨알 굵네요!',tags:['#숭어','#소래포구','#갯바위']},
+  ],
+  // 충남 서해 (감성돔,볼락,우럭,광어,주꾸미,농어)
+  c1:[
+    {id:201,fish:'감성돔',angler:'충남낚시왕',date:'3월 19일',loc:'충남 안면도',method:'찌낚시',rig:'구멍찌 1호',size:'47cm',weight:'1.6kg',count:2,lat:36.52,lng:126.35,tide:'사리',wind:'2.2m/s 남서',bar:'1017hpa',wave:'0.5m',memo:'안면도 감성돔 47cm 대물! 구멍찌 수심 8m 입질.',tags:['#감성돔','#안면도','#찌낚시','#대물']},
+    {id:202,fish:'볼락',angler:'방파제볼락꾼',date:'3월 19일',loc:'충남 대천항',method:'루어낚시',rig:'마이크로지그 3g',size:'26cm',weight:'0.38kg',count:14,lat:36.33,lng:126.55,tide:'조금',wind:'1.5m/s 서',bar:'1022hpa',wave:'0.2m',memo:'대천항 방파제 볼락 14마리! 일몰 직후가 최고.',tags:['#볼락','#대천항','#방파제','#마릿수']},
+    {id:203,fish:'주꾸미',angler:'서해주꾸미',date:'3월 18일',loc:'충남 천수만',method:'선상낚시',rig:'에기 2.5호',size:'17cm',weight:'0.18kg',count:31,lat:36.62,lng:126.48,tide:'무시',wind:'2.8m/s 북서',bar:'1015hpa',wave:'0.6m',memo:'천수만 주꾸미 31마리! 에기 에코 2.5호 최강.',tags:['#주꾸미','#천수만','#마릿수','#에기']},
+    {id:204,fish:'농어',angler:'농어마스터',date:'3월 18일',loc:'충남 보령 외연도',method:'루어낚시',rig:'미노우',size:'68cm',weight:'3.2kg',count:1,lat:36.22,lng:126.05,tide:'한사리',wind:'3.5m/s 서',bar:'1014hpa',wave:'1.0m',memo:'외연도 농어 68cm! 미노우 12cm에 폭발. 힘 장난 아님.',tags:['#농어','#외연도','#대물','#미노우']},
+    {id:205,fish:'광어',angler:'충남광어꾼',date:'3월 17일',loc:'충남 태안 몽산포',method:'루어낚시',rig:'지그헤드웜',size:'54cm',weight:'2.1kg',count:1,lat:36.75,lng:126.32,tide:'조금',wind:'2.0m/s 북서',bar:'1020hpa',wave:'0.3m',memo:'몽산포 광어 54cm. 모래사장 포인트 수심 10m.',tags:['#광어','#몽산포','#대물']},
+    {id:206,fish:'감성돔',angler:'서산꾼최씨',date:'3월 17일',loc:'충남 서산 가로림만',method:'찌낚시',rig:'반유동',size:'41cm',weight:'1.3kg',count:3,lat:36.83,lng:126.48,tide:'사리',wind:'1.8m/s 남',bar:'1021hpa',wave:'0.2m',memo:'가로림만 감성돔 3마리. 반유동 찌낚시 수심 6m.',tags:['#감성돔','#가로림만','#찌낚시']},
+  ],
+  // 전북 서해 (우럭,광어,감성돔,농어,주꾸미)
+  c2:[
+    {id:301,fish:'우럭',angler:'어청도꾼',date:'3월 19일',loc:'전북 군산 어청도',method:'선상낚시',rig:'다운샷 14g',size:'43cm',weight:'1.3kg',count:9,lat:36.10,lng:125.98,tide:'사리',wind:'3.0m/s 북서',bar:'1016hpa',wave:'0.7m',memo:'어청도 암초지대 우럭 9마리 대박! 씨알 40cm 이상.',tags:['#우럭','#어청도','#선상','#암초']},
+    {id:302,fish:'광어',angler:'군산광어헌터',date:'3월 18일',loc:'전북 군산 비응항',method:'루어낚시',rig:'지그헤드웜 14g',size:'63cm',weight:'2.9kg',count:1,lat:35.98,lng:126.72,tide:'조금',wind:'2.0m/s 서',bar:'1020hpa',wave:'0.4m',memo:'비응항 63cm 광어 대물! 핑크웜 수심 13m에서 히트.',tags:['#광어','#비응항','#대물','#루어']},
+    {id:303,fish:'농어',angler:'전북농어킬러',date:'3월 18일',loc:'전북 부안 변산',method:'루어낚시',rig:'메탈지그',size:'72cm',weight:'3.8kg',count:1,lat:35.72,lng:126.55,tide:'한사리',wind:'4.0m/s 서',bar:'1013hpa',wave:'1.2m',memo:'변산 서핑 농어 72cm! 조류 강한 날 대물 확률 높아요.',tags:['#농어','#변산','#대물','#서핑']},
+    {id:304,fish:'감성돔',angler:'부안갯바위꾼',date:'3월 17일',loc:'전북 부안 격포항',method:'찌낚시',rig:'구멍찌',size:'39cm',weight:'1.1kg',count:3,lat:35.65,lng:126.58,tide:'무시',wind:'2.5m/s 남서',bar:'1018hpa',wave:'0.5m',memo:'격포항 감성돔 3마리. 봄 감성돔 씨알 올라오고 있어요!',tags:['#감성돔','#격포항','#갯바위']},
+    {id:305,fish:'주꾸미',angler:'위도주꾸미',date:'3월 17일',loc:'전북 부안 위도',method:'선상낚시',rig:'에기 3호',size:'20cm',weight:'0.22kg',count:27,lat:35.62,lng:126.30,tide:'사리',wind:'1.8m/s 북',bar:'1021hpa',wave:'0.3m',memo:'위도 주꾸미 27마리 대박! 에기 3호 붉은색에 집중 히트.',tags:['#주꾸미','#위도','#에기','#마릿수']},
+    {id:306,fish:'광어',angler:'고창꾼정씨',date:'3월 16일',loc:'전북 고창 구시포',method:'루어낚시',rig:'지그헤드웜',size:'48cm',weight:'1.7kg',count:2,lat:35.53,lng:126.55,tide:'조금',wind:'2.2m/s 서남',bar:'1019hpa',wave:'0.4m',memo:'구시포 광어 2마리. 모래사장 포인트 수심 8m.',tags:['#광어','#구시포','#루어']},
+  ],
+  // 경남 (전갱이,부시리,방어,감성돔,참돔,볼락)
+  c3:[
+    {id:401,fish:'전갱이',angler:'거제꾼이씨',date:'3월 19일',loc:'경남 거제 학동',method:'루어낚시',rig:'스피닝 5g',size:'38cm',weight:'1.3kg',count:3,lat:34.593,lng:127.277,tide:'사리',wind:'2.1m/s 북동',bar:'1023.6hpa',wave:'0.3m',memo:'거제 학동 전갱이 조황 폭발! 스피닝 5g 청색에 히트.',tags:['#전갱이','#거제','#루어','#마릿수']},
+    {id:402,fish:'부시리',angler:'블루워터헌터',date:'3월 19일',loc:'경남 통영 욕지도',method:'루어낚시',rig:'메탈지그 60g',size:'78cm',weight:'4.5kg',count:1,lat:34.63,lng:128.12,tide:'조금',wind:'3.5m/s 남',bar:'1019hpa',wave:'0.8m',memo:'욕지도 부시리 78cm!! 메탈지그 60g 슬로우지깅.',tags:['#부시리','#욕지도','#대물','#슬로우지깅']},
+    {id:403,fish:'방어',angler:'남해방어헌터',date:'3월 18일',loc:'경남 남해 미조항',method:'선상낚시',rig:'살오징어미끼',size:'85cm',weight:'5.8kg',count:1,lat:34.73,lng:127.92,tide:'한사리',wind:'2.8m/s 북동',bar:'1018hpa',wave:'0.5m',memo:'85cm 대물 방어! 5.8kg 겨울 방어 최강입니다.',tags:['#방어','#미조항','#대물','#선상']},
+    {id:404,fish:'감성돔',angler:'거제감성꾼',date:'3월 18일',loc:'경남 거제 내도',method:'찌낚시',rig:'구멍찌 B',size:'46cm',weight:'1.6kg',count:2,lat:34.82,lng:128.55,tide:'사리',wind:'2.0m/s 북',bar:'1021hpa',wave:'0.4m',memo:'내도 감성돔 46cm 쾌조! 봄 감성돔 시즌 진입.',tags:['#감성돔','#거제내도','#찌낚시']},
+    {id:405,fish:'전갱이',angler:'마릿수왕',date:'3월 17일',loc:'경남 고성 당항포',method:'루어낚시',rig:'스피닝베이트',size:'33cm',weight:'0.95kg',count:15,lat:34.91,lng:128.43,tide:'무시',wind:'1.5m/s 동',bar:'1021hpa',wave:'0.2m',memo:'당항포 전갱이 15마리! 조류 맞으면 무조건 대박.',tags:['#전갱이','#당항포','#마릿수','#루어']},
+    {id:406,fish:'참돔',angler:'통영참돔꾼',date:'3월 17일',loc:'경남 통영 한산도',method:'선상낚시',rig:'타이라바 80g',size:'55cm',weight:'2.6kg',count:1,lat:34.83,lng:128.45,tide:'사리',wind:'2.5m/s 북동',bar:'1019hpa',wave:'0.5m',memo:'한산도 참돔 55cm! 타이라바 주황스커트.',tags:['#참돔','#한산도','#타이라바','#대물']},
+    {id:407,fish:'방어',angler:'겨울방어킬러',date:'3월 16일',loc:'경남 남해 노도',method:'선상낚시',rig:'갈치미끼',size:'80cm',weight:'5.1kg',count:2,lat:34.68,lng:127.78,tide:'사리',wind:'3.2m/s 북동',bar:'1017hpa',wave:'0.6m',memo:'노도 방어 80cm, 74cm. 강력한 파이팅!',tags:['#방어','#노도','#대물','#선상']},
+    {id:408,fish:'볼락',angler:'경남볼락야간',date:'3월 16일',loc:'경남 통영 도남항',method:'루어낚시',rig:'마이크로지그 2g',size:'24cm',weight:'0.32kg',count:19,lat:34.85,lng:128.42,tide:'조금',wind:'1.2m/s 남',bar:'1023hpa',wave:'0.1m',memo:'도남항 야간 볼락 19마리! 마이크로지그 최강.',tags:['#볼락','#도남항','#야간','#마릿수']},
+  ],
+  // 남해 (참돔,도다리,감성돔,볼락,방어)
+  c4:[
+    {id:501,fish:'참돔',angler:'여수타이라바',date:'3월 19일',loc:'전남 여수 돌산도',method:'선상낚시',rig:'타이라바 100g',size:'55cm',weight:'2.7kg',count:1,lat:34.73,lng:127.72,tide:'사리',wind:'2.0m/s 동',bar:'1020hpa',wave:'0.4m',memo:'돌산도 타이라바 참돔 55cm 대물! 빨강 스커트 최강.',tags:['#참돔','#돌산도','#타이라바','#대물']},
+    {id:502,fish:'도다리',angler:'봄도다리왕',date:'3월 19일',loc:'전남 고흥 영남면',method:'선상낚시',rig:'청개구리채비',size:'35cm',weight:'0.55kg',count:6,lat:34.57,lng:127.42,tide:'조금',wind:'1.5m/s 남서',bar:'1023hpa',wave:'0.2m',memo:'봄 도다리 시즌 오픈! 6마리 마릿수 굿.',tags:['#도다리','#봄시즌','#영남면','#마릿수']},
+    {id:503,fish:'감성돔',angler:'완도갯바위꾼',date:'3월 18일',loc:'전남 완도 청산도',method:'찌낚시',rig:'구멍찌 2B',size:'49cm',weight:'1.9kg',count:2,lat:34.18,lng:126.88,tide:'한사리',wind:'3.0m/s 북동',bar:'1016hpa',wave:'0.7m',memo:'청산도 감성돔 49cm! 봄 감성돔 최상 컨디션.',tags:['#감성돔','#청산도','#찌낚시','#대물']},
+    {id:504,fish:'도다리',angler:'나로도도다리',date:'3월 18일',loc:'전남 고흥 나로도',method:'선상낚시',rig:'민장대채비',size:'32cm',weight:'0.5kg',count:9,lat:34.42,lng:127.52,tide:'무시',wind:'1.2m/s 남',bar:'1024hpa',wave:'0.1m',memo:'나로도 봄 도다리 9마리! 물색 맑고 포인트 최적.',tags:['#도다리','#나로도','#마릿수','#봄']},
+    {id:505,fish:'참돔',angler:'완도참돔헌터',date:'3월 17일',loc:'전남 완도',method:'선상낚시',rig:'타이라바 80g',size:'60cm',weight:'3.1kg',count:1,lat:34.32,lng:126.75,tide:'사리',wind:'2.5m/s 북서',bar:'1018hpa',wave:'0.5m',memo:'완도 참돔 60cm 대물! 오렌지 스커트.',tags:['#참돔','#완도','#타이라바','#대물']},
+    {id:506,fish:'볼락',angler:'여수볼락야간',date:'3월 17일',loc:'전남 여수 오동도',method:'루어낚시',rig:'지그헤드 1.5g',size:'23cm',weight:'0.28kg',count:17,lat:34.74,lng:127.76,tide:'조금',wind:'1.0m/s 남',bar:'1024hpa',wave:'0.1m',memo:'오동도 야간 볼락 17마리! 소형 지그헤드 최강.',tags:['#볼락','#오동도','#야간','#마릿수']},
+    {id:507,fish:'방어',angler:'거문도방어꾼',date:'3월 16일',loc:'전남 여수 거문도',method:'선상낚시',rig:'메탈지그 80g',size:'76cm',weight:'4.5kg',count:2,lat:34.03,lng:127.30,tide:'한사리',wind:'3.5m/s 북동',bar:'1015hpa',wave:'1.0m',memo:'거문도 방어 76cm, 70cm. 겨울 방어 피날레!',tags:['#방어','#거문도','#대물','#선상']},
+  ],
+  // 경북·울산 (대구,가자미,문어,볼락,광어)
+  c5:[
+    {id:601,fish:'대구',angler:'동해대구킬러',date:'3월 19일',loc:'경북 포항 구룡포',method:'선상낚시',rig:'대구채비 250g',size:'68cm',weight:'3.5kg',count:3,lat:35.78,lng:129.55,tide:'사리',wind:'2.8m/s 북동',bar:'1015hpa',wave:'0.9m',memo:'구룡포 대구 3마리 올포켓! 68, 62, 58cm 대물.',tags:['#대구','#구룡포','#선상','#대물']},
+    {id:602,fish:'가자미',angler:'영일만가자미',date:'3월 18일',loc:'경북 포항 영일만',method:'선상낚시',rig:'외줄낚시 100g',size:'36cm',weight:'0.65kg',count:12,lat:36.08,lng:129.42,tide:'조금',wind:'2.0m/s 동',bar:'1020hpa',wave:'0.4m',memo:'영일만 가자미 12마리! 봄 가자미 씨알 올라왔어요.',tags:['#가자미','#영일만','#마릿수','#봄']},
+    {id:603,fish:'문어',angler:'동해문어헌터',date:'3월 18일',loc:'경북 포항 대보',method:'루어낚시',rig:'문어에기',size:'70cm',weight:'2.8kg',count:2,lat:35.60,lng:129.57,tide:'한사리',wind:'3.5m/s 북',bar:'1014hpa',wave:'1.2m',memo:'대보 문어 2마리! 문어에기 수심 20m에서 히트.',tags:['#문어','#대보','#에기','#동해']},
+    {id:604,fish:'볼락',angler:'포항볼락야간',date:'3월 17일',loc:'경북 포항 호미곶',method:'루어낚시',rig:'지그헤드 2g',size:'26cm',weight:'0.35kg',count:11,lat:36.07,lng:129.57,tide:'사리',wind:'2.2m/s 북동',bar:'1018hpa',wave:'0.5m',memo:'호미곶 야간 볼락 11마리! 지그헤드 2g 화이트.',tags:['#볼락','#호미곶','#야간','#마릿수']},
+    {id:605,fish:'광어',angler:'울산광어꾼',date:'3월 17일',loc:'울산 주전',method:'루어낚시',rig:'지그헤드웜',size:'50cm',weight:'1.9kg',count:2,lat:35.58,lng:129.48,tide:'무시',wind:'1.5m/s 남동',bar:'1021hpa',wave:'0.3m',memo:'주전 광어 50cm. 모래밭 포인트 수심 11m.',tags:['#광어','#주전','#울산','#루어']},
+    {id:606,fish:'가자미',angler:'울진가자미',date:'3월 16일',loc:'경북 울진 죽변항',method:'선상낚시',rig:'외줄낚시',size:'33cm',weight:'0.58kg',count:8,lat:37.05,lng:129.42,tide:'조금',wind:'1.8m/s 북동',bar:'1020hpa',wave:'0.4m',memo:'죽변항 가자미 8마리. 봄 참가자미 씨알 좋아요!',tags:['#가자미','#죽변항','#마릿수']},
+    {id:607,fish:'대구',angler:'동해대구헌터',date:'3월 16일',loc:'경북 영덕 강구항',method:'선상낚시',rig:'대구채비',size:'62cm',weight:'2.9kg',count:2,lat:36.53,lng:129.42,tide:'사리',wind:'3.0m/s 북',bar:'1016hpa',wave:'0.8m',memo:'강구항 대구 2마리 62, 58cm. 시즌 막바지 대물!',tags:['#대구','#강구항','#대물','#선상']},
+  ],
+};
+// 현재 활성 클러스터 인덱스 저장
+var G_CLUSTER_IDX = 3;
+
+// CATCHES는 현재 선택된 클러스터 데이터로 동적 설정
+var CATCHES = ALL_CATCHES.c3.slice();
+
 var BOATS=[
   {id:1,name:'진도 거금 박프로호',loc:'전라남도 고흥군·신양선착장',fish:'광어,우럭,참돔',hrs:'05:00~15:30',price:110000,lat:34.581,lng:127.263,rest:13,hotel:5,sight:2},
   {id:2,name:'고흥 뱃놀이호',loc:'전라남도 고흥군·고흥선착장',fish:'전갱이,부시리,방어',hrs:'06:00~16:00',price:90000,lat:34.603,lng:127.298},
+  {id:3,name:'통영 블루오션호',loc:'경남 통영시·통영항',fish:'부시리,방어,참돔',hrs:'05:30~16:00',price:120000,lat:34.845,lng:128.432},
+  {id:4,name:'여수 남해호',loc:'전남 여수시·오동도선착장',fish:'참돔,도다리,감성돔',hrs:'06:00~15:30',price:95000,lat:34.745,lng:127.745},
 ];
 var CLUSTERS=[
-  {n:96, lat:37.42,lng:126.92,fish:'볼락,우럭,광어'},
-  {n:30, lat:36.48,lng:126.28,fish:'감성돔,볼락'},
-  {n:32, lat:36.08,lng:126.45,fish:'우럭,넙치'},
-  {n:287,lat:35.52,lng:128.48,fish:'전갱이,부시리,방어'},
-  {n:65, lat:34.95,lng:127.78,fish:'참돔,도다리'},
-  {n:36, lat:35.48,lng:129.38,fish:'대구,가자미'},
+  {n:96, lat:37.42,lng:126.92,fish:'볼락,우럭,광어,주꾸미,숭어',  region:'경기·인천',cidx:0},
+  {n:30, lat:36.48,lng:126.28,fish:'감성돔,볼락,주꾸미,농어,광어', region:'충남 서해', cidx:1},
+  {n:32, lat:36.08,lng:126.45,fish:'우럭,광어,감성돔,농어,주꾸미', region:'전북 서해', cidx:2},
+  {n:287,lat:35.52,lng:128.48,fish:'전갱이,부시리,방어,감성돔,참돔,볼락',region:'경남',cidx:3},
+  {n:65, lat:34.95,lng:127.78,fish:'참돔,도다리,감성돔,볼락,방어', region:'남해',    cidx:4},
+  {n:36, lat:35.48,lng:129.38,fish:'대구,가자미,문어,볼락,광어',   region:'경북·울산',cidx:5},
 ];
-var WEATH=[{t:'오전11',i:'☁️'},{t:'오후12',i:'🌤'},{t:'오후1',i:'🌤'},{t:'오후2',i:'⛅'},{t:'오후3',i:'☁️'},{t:'오후4',i:'🌧'},{t:'오후5',i:'🌧'}];
 var BG=['linear-gradient(135deg,#1e4a7a,#3a7cc5)','linear-gradient(135deg,#1a5a3a,#3a9c6a)','linear-gradient(135deg,#4a1e4a,#8a3a8a)'];
 var ICO_FISH='<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="rgba(255,255,255,.85)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8c0 0-2-3-7-3C6 5 2 10 2 12c0 2 4 7 9 7 5 0 7-3 7-3"/><path d="M18 8l4-3-1 4 1 4-4-3z"/><circle cx="7.5" cy="11" r="1" fill="rgba(255,255,255,.5)" stroke="none"/></svg>';
 var ICO_ROD='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="20" x2="20" y2="4"/><path d="M20 4c1 0 2 .5 2 1.5"/><path d="M15 9l2 2"/></svg>';
 var ICO_ANCHOR='<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="3"/><line x1="12" y1="8" x2="12" y2="22"/><path d="M5 15s1 4 7 4 7-4 7-4"/><line x1="5" y1="8" x2="19" y2="8"/></svg>';
 var ICO_BOAT='<svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="rgba(255,255,255,.85)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l1.5 3h15L21 17"/><path d="M5 17L12 5l7 12"/><line x1="12" y1="5" x2="12" y2="17"/></svg>';
 
+// ── 어종별 실사 사진 (Unsplash) ──────────────────────────────
+var FISH_PHOTOS={
+  '광어':'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=120&h=120&fit=crop',
+  '넙치':'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=120&h=120&fit=crop',
+  '전갱이':'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=120&h=120&fit=crop',
+  '우럭':'https://images.unsplash.com/photo-1559494007-9f5847c49d94?w=120&h=120&fit=crop',
+  '볼락':'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&h=120&fit=crop',
+  '감성돔':'https://images.unsplash.com/photo-1568347877321-f8935c7dc5f0?w=120&h=120&fit=crop',
+  '참돔':'https://images.unsplash.com/photo-1604503468506-a8da13d82791?w=120&h=120&fit=crop',
+  '도다리':'https://images.unsplash.com/photo-1485470733090-0aae1788d5af?w=120&h=120&fit=crop',
+  '방어':'https://images.unsplash.com/photo-1534482421-64566f976cfa?w=120&h=120&fit=crop',
+  '부시리':'https://images.unsplash.com/photo-1565440962783-f87effdbc0b9?w=120&h=120&fit=crop',
+  '대구':'https://images.unsplash.com/photo-1611171711791-b34e41585073?w=120&h=120&fit=crop',
+  '가자미':'https://images.unsplash.com/photo-1571752726703-5e7d1f6a986d?w=120&h=120&fit=crop',
+  '주꾸미':'https://images.unsplash.com/photo-1545696968-1a31da406a84?w=120&h=120&fit=crop',
+  '문어':'https://images.unsplash.com/photo-1545696968-1a31da406a84?w=120&h=120&fit=crop',
+  '농어':'https://images.unsplash.com/photo-1611171711791-b34e41585073?w=120&h=120&fit=crop',
+  '숭어':'https://images.unsplash.com/photo-1611171711791-b34e41585073?w=120&h=120&fit=crop',
+};
+function getFishThumb(fish){
+  var url=FISH_PHOTOS[fish];
+  if(!url)url='https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=120&h=120&fit=crop';
+  return '<img src="'+url+'" style="width:100%;height:100%;object-fit:cover;border-radius:10px;" onerror="this.style.display=\'none\'">';
+}
+
 // ── STATE ─────────────────────────────────────────────────────
-var MAP=null,MARKERS=[],USE_KAKAO=false;
-var G={mode:'korea',q:'',ctaOn:true,selBoat:null,
+var WEATH=[{t:'07시',i:'🌤',c:'9°',w:'1.2m/s'},{t:'09시',i:'⛅',c:'13°',w:'2.0m/s'},{t:'11시',i:'☁️',c:'14°',w:'2.3m/s'},{t:'13시',i:'⛅',c:'15°',w:'1.8m/s'},{t:'15시',i:'🌤',c:'14°',w:'1.4m/s'},{t:'17시',i:'🌅',c:'12°',w:'1.1m/s'}];
+var MAP=null, MARKERS=[], USE_KAKAO=false;
+var G={mode:'korea', q:'', ctaOn:true, selBoat:null,
   pref:{step:1,date:null,stay:null,stayType:null,food:null,foodType:null}};
 
 // ── MAP INIT ─────────────────────────────────────────────────
 function initMap(){
   var mapEl=document.getElementById('map');
-
-  // 카카오맵 로드됐으면 카카오맵 사용
   if(typeof kakao!=='undefined'&&kakao.maps){
     USE_KAKAO=true;
     MAP=new kakao.maps.Map(mapEl,{
@@ -343,113 +837,193 @@ function initMap(){
     });
     kakao.maps.event.addListener(MAP,'zoom_changed',onZoom);
     addClusters();
-    return;
+  } else {
+    // SVG fallback (미리보기용)
+    mapEl.innerHTML=svgKoreaMap();
+    mapEl.style.background='#c8d9e6';
+    addSVGMarkers();
   }
-
-  // 카카오맵 없으면 SVG 지도 fallback
-  mapEl.innerHTML=svgKoreaMap();
-  mapEl.style.background='#c8d9e6';
-  addSVGMarkers();
 }
 
-// ── KAKAO MAP 마커 ────────────────────────────────────────────
+// ── 카카오맵 마커 관리 ─────────────────────────────────────────
+function mkLatLng(lat,lng){return new kakao.maps.LatLng(lat,lng);}
+
+function addOverlay(lat,lng,html,zIdx,onClick){
+  var div=document.createElement('div');
+  div.innerHTML=html;
+  var el=div.firstElementChild;
+  el.addEventListener('click',onClick);
+  var ov=new kakao.maps.CustomOverlay({
+    position:mkLatLng(lat,lng),
+    content:el,
+    zIndex:zIdx||3,
+    yAnchor:0.5,
+    xAnchor:0.5
+  });
+  ov.setMap(MAP);
+  MARKERS.push(ov);
+  return ov;
+}
+
+function clearMarkers(){
+  MARKERS.forEach(function(m){m.setMap(null);});
+  MARKERS=[];
+}
+
 function addClusters(){
   clearMarkers();
   CLUSTERS.forEach(function(c){
     var sz=c.n>200?72:c.n>60?58:c.n>30?48:42;
     var fs=c.n>200?17:c.n>60?15:13;
-    var content='<div class="cm" style="width:'+sz+'px;height:'+sz+'px;font-size:'+fs+'px;">'+c.n+'</div>';
-    var ov=new kakao.maps.CustomOverlay({position:new kakao.maps.LatLng(c.lat,c.lng),content:content,zIndex:3});
-    ov.setMap(MAP);
-    ov.getContent().addEventListener('click',(function(cl){return function(){zoomKakao(cl);};})(c));
-    MARKERS.push(ov);
+    var html='<div class="cm" style="width:'+sz+'px;height:'+sz+'px;font-size:'+fs+'px;cursor:pointer;">'+c.n+'</div>';
+    addOverlay(c.lat,c.lng,html,3,(function(cl){return function(){zoomToCluster(cl);};})(c));
   });
 }
 
 function addDetailMarkers(){
   clearMarkers();
-  CATCHES.forEach(function(c){
-    var content='<div class="dm-wrap"><div class="dm">'+ICO_ROD+'</div></div>';
-    var ov=new kakao.maps.CustomOverlay({position:new kakao.maps.LatLng(c.lat,c.lng),content:content,zIndex:4});
-    ov.setMap(MAP);
-    ov.getContent().addEventListener('click',(function(cc){return function(){openCatch(cc);};})(c));
-    MARKERS.push(ov);
+  var catches=ALL_CATCHES['c'+G_CLUSTER_IDX]||CATCHES;
+  catches.forEach(function(c,i){
+    var delay=(i*80)+'ms';
+    var html='<div class="dm-wrap dm-anim dm-pulse" style="animation-delay:'+delay+'"><div class="dm">'+ICO_ROD+'</div></div>';
+    addOverlay(c.lat,c.lng,html,4,(function(cc){return function(){openCatch(cc);};})(c));
   });
-  BOATS.forEach(function(b){
+  var regionBoats=BOATS.filter(function(b){
+    var c=CLUSTERS[G_CLUSTER_IDX];
+    if(!c)return true;
+    return Math.abs(b.lat-c.lat)<1.5&&Math.abs(b.lng-c.lng)<2;
+  });
+  if(regionBoats.length===0)regionBoats=BOATS.slice(0,2);
+  regionBoats.forEach(function(b,i){
+    var delay=(catches.length*80+i*100)+'ms';
     var dot=b.id===1?'<div class="bm-dot"></div>':'';
-    var content='<div class="bm">'+ICO_ANCHOR+dot+'</div>';
-    var ov=new kakao.maps.CustomOverlay({position:new kakao.maps.LatLng(b.lat,b.lng),content:content,zIndex:4});
-    ov.setMap(MAP);
-    ov.getContent().addEventListener('click',(function(bb){return function(){openBoat(bb);};})(b));
-    MARKERS.push(ov);
+    var html='<div class="bm bm-anim" style="animation-delay:'+delay+'">'+ICO_ANCHOR+dot+'</div>';
+    addOverlay(b.lat,b.lng,html,4,(function(bb){return function(){openBoat(bb);};})(b));
   });
 }
 
-function clearMarkers(){MARKERS.forEach(function(m){m.setMap(null);});MARKERS=[];}
-
-function zoomKakao(c){
-  G.mode='detail';G.q=c.fish.split(',')[0];
+// ── 지도 조작 ──────────────────────────────────────────────────
+function zoomToCluster(c){
+  G.mode='detail';
+  G_CLUSTER_IDX=c.cidx||3;
+  CATCHES=ALL_CATCHES['c'+G_CLUSTER_IDX]||ALL_CATCHES.c3;
+  G.q=c.fish.split(',')[0];
   document.getElementById('searchInput').value=G.q;
   hideCTA();
-  MAP.setLevel(5);MAP.setCenter(new kakao.maps.LatLng(c.lat,c.lng));
-  setTimeout(function(){addDetailMarkers();showSheet();},300);
+  MAP.setCenter(mkLatLng(c.lat,c.lng));
+  MAP.setLevel(5,{animate:true});
+  setTimeout(function(){
+    addDetailMarkers();
+    showSheet(G.q);
+  },400);
 }
 
 function onZoom(){
   if(!MAP)return;
   var lv=MAP.getLevel();
   if(lv<=5&&G.mode==='korea'){
-    G.mode='detail';addDetailMarkers();
-    if(G.q)showSheet();
-  } else if(lv>7&&G.mode==='detail'){
+    G.mode='detail';
+    addDetailMarkers();
+    if(G.q)showSheet(G.q);
+  } else if(lv>=9&&G.mode==='detail'){
     G.mode='korea';
-    clearMarkers();addClusters();hideSheet();
-    document.getElementById('searchInput').value='';G.q='';
-    if(G.ctaOn){var e=document.getElementById('cta');e.style.cssText='opacity:1;display:flex;';}
+    clearMarkers();
+    addClusters();
+    hideSheet();
+    document.getElementById('searchInput').value='';
+    G.q='';
+    if(G.ctaOn){
+      var e=document.getElementById('cta');
+      e.style.cssText='opacity:1;display:flex;transform:none;';
+    }
   }
-}
-
-function resetMap(){
-  if(USE_KAKAO&&MAP){
-    G.mode='korea';clearMarkers();addClusters();
-    MAP.setLevel(8);MAP.setCenter(new kakao.maps.LatLng(36.2,127.8));
-  } else {
-    resetSVGView();
-  }
-  hideSheet();G.q='';document.getElementById('searchInput').value='';
 }
 
 function doSearch(){
-  var q=G.q||document.getElementById('searchInput').value.trim();
+  var q=(document.getElementById('searchInput').value||'').trim();
+  G.q=q;
   if(!q)return;
   document.getElementById('searchInput').blur();
-  var tgt=CLUSTERS.find(function(c){return c.fish.includes(q);})||CLUSTERS[3];
-  if(USE_KAKAO&&MAP){zoomKakao(tgt);}
-  else{zoomSVG(tgt);}
+
+  if(!USE_KAKAO){
+    // SVG 모드에서도 실제 조과 데이터 기반으로 최적 클러스터 찾기
+    var svgBestIdx=3,svgBestCnt=0;
+    ['c0','c1','c2','c3','c4','c5'].forEach(function(k,i){
+      var cnt=(ALL_CATCHES[k]||[]).filter(function(r){return r.fish.indexOf(q)!==-1;}).length;
+      if(cnt>svgBestCnt){svgBestCnt=cnt;svgBestIdx=i;}
+    });
+    if(svgBestCnt===0){for(var si=0;si<CLUSTERS.length;si++){if(CLUSTERS[si].fish.indexOf(q)!==-1){svgBestIdx=si;break;}}}
+    G_CLUSTER_IDX=svgBestIdx;
+    CATCHES=ALL_CATCHES['c'+svgBestIdx]||ALL_CATCHES.c3;
+    zoomSVG(CLUSTERS[svgBestIdx]);
+    return;
+  }
+
+  // 1) 전체 ALL_CATCHES에서 해당 어종이 가장 많은 클러스터 찾기
+  var bestIdx=3, bestCount=0;
+  var keys=['c0','c1','c2','c3','c4','c5'];
+  keys.forEach(function(k,i){
+    var arr=ALL_CATCHES[k]||[];
+    var cnt=arr.filter(function(r){return r.fish.indexOf(q)!==-1;}).length;
+    if(cnt>bestCount){bestCount=cnt;bestIdx=i;}
+  });
+  // 2) 없으면 cluster fish 문자열로 매칭
+  if(bestCount===0){
+    for(var i=0;i<CLUSTERS.length;i++){
+      if(CLUSTERS[i].fish.indexOf(q)!==-1){bestIdx=i;break;}
+    }
+  }
+
+  var tgt=CLUSTERS[bestIdx];
+  G.mode='detail';
+  G_CLUSTER_IDX=bestIdx;
+  CATCHES=ALL_CATCHES['c'+bestIdx]||ALL_CATCHES.c3;
+  hideCTA();
+  MAP.setCenter(mkLatLng(tgt.lat,tgt.lng));
+  MAP.setLevel(5,{animate:true});
+  setTimeout(function(){
+    addDetailMarkers();
+    showSheet(q);
+  },400);
 }
 
-function quickSearch(f){document.getElementById('searchInput').value=f;G.q=f;doSearch();}
+function quickSearch(f){
+  document.getElementById('searchInput').value=f;
+  G.q=f;
+  doSearch();
+}
 
-// ── SVG FALLBACK MAP ──────────────────────────────────────────
+function resetMap(){
+  G.mode='korea';
+  G.q='';
+  document.getElementById('searchInput').value='';
+  hideSheet();
+  if(USE_KAKAO&&MAP){
+    clearMarkers();
+    addClusters();
+    MAP.setCenter(mkLatLng(36.2,127.8));
+    MAP.setLevel(8,{animate:true});
+  } else {
+    resetSVGView();
+  }
+  if(G.ctaOn){
+    var e=document.getElementById('cta');
+    e.style.cssText='opacity:1;display:flex;transform:none;';
+  }
+}
+
+// ── SVG FALLBACK ──────────────────────────────────────────────
 function svgKoreaMap(){
   return '<svg id="ksvg" xmlns="http://www.w3.org/2000/svg" width="390" height="844" viewBox="0 0 390 844" style="position:absolute;top:0;left:0;transition:transform .5s cubic-bezier(.4,0,.2,1)">'
     +'<rect width="390" height="844" fill="#b8d4e8"/>'
-    +'<g stroke="#a0bcd0" stroke-width="0.4" opacity="0.5">'
-    +'<line x1="0" y1="211" x2="390" y2="211"/><line x1="0" y1="422" x2="390" y2="422"/><line x1="0" y1="633" x2="390" y2="633"/>'
-    +'<line x1="97.5" y1="0" x2="97.5" y2="844"/><line x1="195" y1="0" x2="195" y2="844"/><line x1="292.5" y1="0" x2="292.5" y2="844"/>'
-    +'</g>'
     +'<path d="M195,55 L212,58 L230,54 L248,60 L262,70 L272,84 L276,100 L274,116 L278,132 L283,148 L280,166 L284,182 L288,198 L285,216 L290,232 L292,250 L288,268 L292,284 L296,300 L298,318 L295,336 L300,354 L302,372 L299,390 L303,408 L305,426 L301,444 L297,460 L292,476 L287,492 L281,508 L274,522 L267,536 L259,550 L250,562 L241,572 L232,580 L222,587 L212,592 L200,595 L188,592 L177,587 L167,579 L158,570 L149,558 L140,546 L132,532 L124,516 L117,500 L110,484 L104,468 L100,450 L96,434 L93,416 L91,398 L90,380 L93,362 L96,344 L99,326 L103,308 L106,290 L110,272 L114,256 L117,238 L114,220 L116,202 L120,186 L116,170 L114,154 L117,138 L122,124 L127,110 L133,97 L141,85 L152,74 L163,65 L177,58 Z" fill="#e8d5b0" stroke="#c4a96a" stroke-width="1.5"/>'
     +'<ellipse cx="158" cy="726" rx="40" ry="22" fill="#e8d5b0" stroke="#c4a96a" stroke-width="1.5"/>'
-    +'<ellipse cx="70" cy="492" rx="11" ry="7" fill="#e8d5b0" stroke="#c4a96a" stroke-width="1"/>'
-    +'<ellipse cx="53" cy="522" rx="8" ry="5" fill="#e8d5b0" stroke="#c4a96a" stroke-width="1"/>'
-    +'<ellipse cx="78" cy="548" rx="13" ry="8" fill="#e8d5b0" stroke="#c4a96a" stroke-width="1"/>'
     +'<text x="48" y="380" text-anchor="middle" font-size="12" fill="#5a8aa8" font-style="italic" font-family="sans-serif">서해</text>'
     +'<text x="342" y="380" text-anchor="middle" font-size="12" fill="#5a8aa8" font-style="italic" font-family="sans-serif">동해</text>'
     +'<text x="195" y="660" text-anchor="middle" font-size="12" fill="#5a8aa8" font-style="italic" font-family="sans-serif">남해</text>'
     +'<text x="200" y="108" text-anchor="middle" font-size="10" fill="#7a6a4a" font-weight="600" font-family="sans-serif">강원도</text>'
     +'<text x="175" y="195" text-anchor="middle" font-size="10" fill="#7a6a4a" font-weight="600" font-family="sans-serif">경기도</text>'
     +'<text x="152" y="290" text-anchor="middle" font-size="10" fill="#7a6a4a" font-weight="600" font-family="sans-serif">충청남도</text>'
-    +'<text x="236" y="290" text-anchor="middle" font-size="10" fill="#7a6a4a" font-weight="600" font-family="sans-serif">충청북도</text>'
     +'<text x="138" y="400" text-anchor="middle" font-size="10" fill="#7a6a4a" font-weight="600" font-family="sans-serif">전북</text>'
     +'<text x="252" y="396" text-anchor="middle" font-size="10" fill="#7a6a4a" font-weight="600" font-family="sans-serif">경상북도</text>'
     +'<text x="144" y="496" text-anchor="middle" font-size="10" fill="#7a6a4a" font-weight="600" font-family="sans-serif">전라남도</text>'
@@ -457,67 +1031,61 @@ function svgKoreaMap(){
     +'<circle cx="180" cy="172" r="3" fill="#c4906a"/><text x="187" y="175" font-size="9" fill="#7a5a3a" font-family="sans-serif">서울</text>'
     +'<circle cx="260" cy="432" r="3" fill="#c4906a"/><text x="267" y="435" font-size="9" fill="#7a5a3a" font-family="sans-serif">대구</text>'
     +'<circle cx="280" cy="490" r="3" fill="#c4906a"/><text x="287" y="493" font-size="9" fill="#7a5a3a" font-family="sans-serif">부산</text>'
-    +'<circle cx="194" cy="238" r="3" fill="#c4906a"/><text x="201" y="241" font-size="9" fill="#7a5a3a" font-family="sans-serif">대전</text>'
-    +'<circle cx="152" cy="428" r="3" fill="#c4906a"/><text x="159" y="431" font-size="9" fill="#7a5a3a" font-family="sans-serif">광주</text>'
-    // cluster markers as SVG circles
-    +'<g id="svg-clusters"></g>'
     +'</svg>';
 }
 
-// SVG 모드 클러스터 좌표 (SVG 390x844 기준 픽셀)
 var SVG_CLUSTERS=[
-  {n:96, sx:124,sy:172,fish:'볼락,우럭,광어'},
-  {n:30, sx:86, sy:300,fish:'감성돔,볼락'},
-  {n:32, sx:93, sy:374,fish:'우럭,넙치'},
+  {n:96,sx:124,sy:172,fish:'볼락,우럭,광어'},
+  {n:30,sx:86,sy:300,fish:'감성돔,볼락'},
+  {n:32,sx:93,sy:374,fish:'우럭,넙치'},
   {n:287,sx:262,sy:458,fish:'전갱이,부시리,방어'},
-  {n:65, sx:193,sy:528,fish:'참돔,도다리'},
-  {n:36, sx:306,sy:444,fish:'대구,가자미'},
+  {n:65,sx:193,sy:528,fish:'참돔,도다리'},
+  {n:36,sx:306,sy:444,fish:'대구,가자미'},
 ];
-var SVG_CATCHES=[
-  {idx:0,sx:146,sy:518},{idx:1,sx:166,sy:536},{idx:2,sx:134,sy:506},{idx:3,sx:153,sy:546},
-];
-var SVG_BOATS=[
-  {idx:0,sx:140,sy:533},{idx:1,sx:160,sy:523},
-];
-var svgMode='korea';
-var svgZoom={scale:1,tx:0,ty:0};
+var SVG_CATCHES=[{idx:0,sx:146,sy:518},{idx:1,sx:166,sy:536},{idx:2,sx:134,sy:506},{idx:3,sx:153,sy:546}];
+var SVG_BOATS=[{idx:0,sx:140,sy:533},{idx:1,sx:160,sy:523}];
+var svgZoom={scale:1,tx:0,ty:0},svgMode='korea';
 
 function addSVGMarkers(){
-  var wrap=document.getElementById('map');
-  // Remove old overlay if any
-  var old=document.getElementById('svg-overlay');
-  if(old)old.remove();
+  var mapEl=document.getElementById('map');
+  var old=document.getElementById('svg-ov');if(old)old.remove();
   var ov=document.createElement('div');
-  ov.id='svg-overlay';
+  ov.id='svg-ov';
   ov.style.cssText='position:absolute;inset:0;z-index:2;pointer-events:none;';
-  wrap.appendChild(ov);
-
-  if(svgMode==='korea'){
-    SVG_CLUSTERS.forEach(function(c){
-      var sz=c.n>200?72:c.n>60?58:c.n>30?48:42;
+  mapEl.appendChild(ov);
+  var svgList=svgMode==='korea'?SVG_CLUSTERS:CATCHES.map(function(ca,i){
+    // 현재 줌 중심 근처 픽셀 좌표 계산 (클러스터 중심 기준 분산)
+    var base=SVG_CLUSTERS[G_CLUSTER_IDX]||{sx:195,sy:422};
+    var offsets=[[-18,-22],[14,-15],[-22,8],[18,12],[0,-28],[24,-5],[-10,20],[20,-25]];
+    var o=offsets[i%offsets.length];
+    return {ca:ca,sx:base.sx+o[0],sy:base.sy+o[1]};
+  });
+  (svgMode==='korea'?SVG_CLUSTERS:svgList).forEach(function(c){
+    var isCluster=svgMode==='korea';
+    var sz=isCluster?(c.n>200?72:c.n>60?58:c.n>30?48:42):36;
+    var el=document.createElement('div');
+    var px=c.sx*svgZoom.scale+svgZoom.tx, py=c.sy*svgZoom.scale+svgZoom.ty;
+    if(isCluster){
       var fs=c.n>200?17:c.n>60?15:13;
-      var el=document.createElement('div');
       el.className='cm';
-      el.style.cssText='position:absolute;width:'+sz+'px;height:'+sz+'px;font-size:'+fs+'px;'
-        +'left:'+applySVGZoom(c.sx,c.sy).x+'px;top:'+applySVGZoom(c.sx,c.sy).y+'px;transform:translate(-50%,-50%);pointer-events:all;';
+      el.style.cssText='position:absolute;width:'+sz+'px;height:'+sz+'px;font-size:'+fs+'px;left:'+px+'px;top:'+py+'px;transform:translate(-50%,-50%);pointer-events:all;';
       el.textContent=c.n;
       el.addEventListener('click',(function(cl){return function(){zoomSVG(cl);};})(c));
-      ov.appendChild(el);
-    });
-  } else {
-    SVG_CATCHES.forEach(function(sc){
-      var c=CATCHES[sc.idx];
-      var el=document.createElement('div');
-      el.style.cssText='position:absolute;left:'+applySVGZoom(sc.sx,sc.sy).x+'px;top:'+applySVGZoom(sc.sx,sc.sy).y+'px;transform:translate(-50%,-50%);pointer-events:all;cursor:pointer;';
-      el.innerHTML='<div class="dm">'+ICO_ROD+'</div>';
-      el.addEventListener('click',(function(cc){return function(){openCatch(cc);};})(c));
-      ov.appendChild(el);
-    });
+    } else {
+      var cc=c.ca||CATCHES[c.idx]||CATCHES[0];
+      el.style.cssText='position:absolute;left:'+px+'px;top:'+py+'px;transform:translate(-50%,-50%);pointer-events:all;cursor:pointer;';
+      el.innerHTML='<div class="dm dm-anim" style="animation-delay:'+(svgList.indexOf(c)*80)+'ms">'+ICO_ROD+'</div>';
+      el.addEventListener('click',(function(ccc){return function(){openCatch(ccc);};})(cc));
+    }
+    ov.appendChild(el);
+  });
+  if(svgMode==='detail'){
     SVG_BOATS.forEach(function(sb){
       var b=BOATS[sb.idx];
       var dot=b.id===1?'<div class="bm-dot"></div>':'';
       var el=document.createElement('div');
-      el.style.cssText='position:absolute;left:'+applySVGZoom(sb.sx,sb.sy).x+'px;top:'+applySVGZoom(sb.sx,sb.sy).y+'px;transform:translate(-50%,-50%);pointer-events:all;';
+      var px=sb.sx*svgZoom.scale+svgZoom.tx, py=sb.sy*svgZoom.scale+svgZoom.ty;
+      el.style.cssText='position:absolute;left:'+px+'px;top:'+py+'px;transform:translate(-50%,-50%);pointer-events:all;';
       el.innerHTML='<div class="bm">'+ICO_ANCHOR+dot+'</div>';
       el.addEventListener('click',(function(bb){return function(){openBoat(bb);};})(b));
       ov.appendChild(el);
@@ -525,21 +1093,21 @@ function addSVGMarkers(){
   }
 }
 
-function applySVGZoom(sx,sy){
-  return {x:sx*svgZoom.scale+svgZoom.tx, y:sy*svgZoom.scale+svgZoom.ty};
-}
-
 function zoomSVG(c){
   svgMode='detail';G.mode='detail';
-  G.q=c.fish.split(',')[0];
+  // cidx가 있으면 해당 클러스터 데이터, 없으면 fish로 검색
+  var cidx=c.cidx!==undefined?c.cidx:3;
+  G_CLUSTER_IDX=cidx;
+  CATCHES=ALL_CATCHES['c'+cidx]||ALL_CATCHES.c3;
+  // 검색어는 현재 입력값 우선, 없으면 클러스터 첫 어종
+  if(!G.q)G.q=c.fish.split(',')[0];
   document.getElementById('searchInput').value=G.q;
   hideCTA();
-  var sx=c.sx||c.px||195,sy=c.sy||c.py||422;
   var scale=2.2;
-  svgZoom={scale:scale,tx:195-sx*scale,ty:390-sy*scale};
+  svgZoom={scale:scale,tx:195-(c.sx||195)*scale,ty:390-(c.sy||422)*scale};
   var svg=document.getElementById('ksvg');
   if(svg)svg.style.transform='scale('+scale+') translate('+svgZoom.tx/scale+'px,'+svgZoom.ty/scale+'px)';
-  setTimeout(function(){addSVGMarkers();showSheet();},450);
+  setTimeout(function(){addSVGMarkers();showSheet(G.q);},450);
 }
 
 function resetSVGView(){
@@ -549,26 +1117,67 @@ function resetSVGView(){
   addSVGMarkers();
 }
 
-// ── SHEET ─────────────────────────────────────────────────────
-function showSheet(){renderSheet();document.getElementById('sheet').classList.add('open');}
+// ── RESULT SHEET ──────────────────────────────────────────────
+function showSheet(q){
+  renderSheet(q);
+  document.getElementById('sheet').classList.add('open');
+}
 function hideSheet(){document.getElementById('sheet').classList.remove('open');}
 
-function renderSheet(){
-  document.getElementById('sheet-list').innerHTML=CATCHES.map(function(c,i){
-    return '<div class="ritem" onclick="openCatch(CATCHES['+i+'])">'
-      +'<div class="rthumb" style="'+BG[i%3]+'">'+ICO_FISH+'</div>'
-      +'<div class="rinfo"><div class="rname">'+c.fish+' <span>'+c.angler+'</span></div>'
-      +'<div class="rsub">'+c.date+' · '+c.loc+'</div>'
-      +'<div class="rtag">'+c.method+' · '+c.rig+'</div></div>'
-      +'<div class="fav'+(c.starred?' on':'')+'" id="fav'+i+'" onclick="event.stopPropagation();toggleStar('+i+')">'
-        +'<svg viewBox="0 0 24 24" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>'
-      +'</div></div>';
-  }).join('');
+function renderSheet(q){
+  var list=CATCHES;
+  if(q){var f=CATCHES.filter(function(c){return c.fish.indexOf(q)!==-1;});list=f.length>0?f:CATCHES;}
+  var cluster=CLUSTERS[G_CLUSTER_IDX];
+  var regionLabel=cluster?cluster.region:'전국';
+  var agoArr=['방금전','5분 전','21분 전','47분 전','1시간 전','2시간 전','3시간 전','5시간 전'];
+  document.getElementById('sheet-list').innerHTML=
+    '<div style="padding:10px 16px 6px;display:flex;align-items:center;justify-content:space-between;">'
+      +'<div style="font-size:13px;font-weight:700;color:var(--text);">'+regionLabel+' 최근 조과 <span style="color:var(--blue);">'+list.length+'건</span></div>'
+      +'<div style="font-size:11px;color:var(--muted);">최신순</div>'
+    +'</div>'
+    +list.map(function(c,i){
+      var ci=CATCHES.indexOf(c);
+      var ago=agoArr[Math.min(i,agoArr.length-1)];
+      return '<div class="ritem" onclick="openCatch(CATCHES['+ci+'])">'
+        +'<div class="rthumb" style="overflow:hidden;position:relative;background:#1e3a5a;">'+getFishThumb(c.fish)
+          +(i<2?'<div style="position:absolute;bottom:2px;left:2px;background:#FF3B30;border-radius:4px;padding:1px 5px;font-size:9px;color:#fff;font-weight:700;">NEW</div>':'')
+        +'</div>'
+        +'<div class="rinfo">'
+          +'<div class="rname">'+c.fish+' <span>'+c.angler+'</span></div>'
+          +'<div class="rsub">'+c.date+' · '+c.loc+'</div>'
+          +'<div style="display:flex;align-items:center;gap:8px;margin-top:3px;">'
+            +'<span style="font-size:11px;color:var(--sub);">'+c.size+' · '+c.count+'마리</span>'
+            +'<span style="font-size:10px;color:var(--muted);">'+ago+'</span>'
+          +'</div>'
+        +'</div>'
+        +'<div class="fav'+(c.starred?' on':'')+'" id="fav'+ci+'" onclick="event.stopPropagation();toggleStar('+ci+')">'
+          +'<svg viewBox="0 0 24 24" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>'
+        +'</div>'
+      +'</div>';
+    }).join('');
 }
 
-function toggleStar(i){CATCHES[i].starred=!CATCHES[i].starred;var el=document.getElementById('fav'+i);if(el)el.classList.toggle('on',CATCHES[i].starred);}
-function hideCTA(){var el=document.getElementById('cta');el.style.opacity='0';el.style.transform='translateY(10px)';setTimeout(function(){el.style.display='none';},300);G.ctaOn=false;}
-function toggleFav(){var s=document.getElementById('fav-svg');if(s.getAttribute('fill')==='none'){s.setAttribute('fill','#FFC300');s.setAttribute('stroke','#E6A800');showToast('즐겨찾기에 추가됨');}else{s.setAttribute('fill','none');s.setAttribute('stroke','var(--sub)');showToast('즐겨찾기 해제됨');}}
+function toggleStar(i){
+  CATCHES[i].starred=!CATCHES[i].starred;
+  var el=document.getElementById('fav'+i);
+  if(el)el.classList.toggle('on',CATCHES[i].starred);
+}
+
+function hideCTA(){
+  var el=document.getElementById('cta');
+  el.style.opacity='0';el.style.transform='translateY(10px)';
+  setTimeout(function(){el.style.display='none';},300);
+  G.ctaOn=false;
+}
+
+function toggleFav(){
+  var s=document.getElementById('fav-svg');
+  if(s.getAttribute('fill')==='none'){
+    s.setAttribute('fill','#FFC300');s.setAttribute('stroke','#E6A800');showToast('즐겨찾기에 추가됨');
+  } else {
+    s.setAttribute('fill','none');s.setAttribute('stroke','var(--sub)');showToast('즐겨찾기 해제됨');
+  }
+}
 
 // ── CATCH PANEL ───────────────────────────────────────────────
 function openCatch(c){
@@ -582,10 +1191,11 @@ function openCatch(c){
         +'<div style="width:36px;height:36px;border-radius:50%;background:var(--g2);display:flex;align-items:center;justify-content:center;">'
           +'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="1.8" stroke-linecap="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>'
         +'</div>'
-        +'<div><div style="font-size:14px;font-weight:700;">'+c.angler+'</div><div style="font-size:12px;color:var(--muted);">'+c.date+' · '+c.loc+'</div></div>'
+        +'<div><div style="font-size:14px;font-weight:700;">'+c.angler+'</div>'
+        +'<div style="font-size:12px;color:var(--muted);">'+c.date+' · '+c.loc+'</div></div>'
       +'</div>'
       +'<div style="font-size:14px;line-height:1.75;color:var(--text);margin-bottom:10px;">고흥 영남면 앞바다에서 전갱이 조황이 좋았습니다. 아침 일찍 출발해 루어 조합으로 좋은 성과를 냈어요.</div>'
-      +'<div>'+'#전갱이 #고흥낚시 #루어낚시 #스피닝'.split(' ').map(function(t){return '<span class="chip">'+t+'</span>';}).join('')+'</div>'
+      +'<div>'+(c.tags||['#낚시','#조황']).map(function(t){return '<span class="chip">'+t+'</span>';}).join('')+'</div>'
     +'</div>'
     +'<div class="divider"></div>'
     +'<div class="sec"><div class="sec-ttl">조과 정보</div>'
@@ -599,14 +1209,18 @@ function openCatch(c){
       +'</div>'
     +'</div>'
     +'<div class="sec"><div class="sec-ttl">낚시 로그</div>'
-      +[['날씨','☁️ 구름 80%'],['물때',"'B' 간조"],['풍속',c.wind||'2.1m/s'],['기압',c.bar||'1023hpa'],['파고',c.wave||'0.3m']].map(function(r){return '<div class="row"><span class="rl">'+r[0]+'</span><span class="rv">'+r[1]+'</span></div>';}).join('')
+      +[['날씨','☁️ 구름 80%'],['물때',"'B' 간조"],['풍속',c.wind||'2.1m/s'],['기압',c.bar||'1023hpa'],['파고',c.wave||'0.3m']].map(function(r){
+        return '<div class="row"><span class="rl">'+r[0]+'</span><span class="rv">'+r[1]+'</span></div>';
+      }).join('')
     +'</div>'
     +'<div class="sec"><div class="sec-ttl">포인트 날씨</div>'
-      +'<div class="wrow">'+WEATH.map(function(w){return '<div class="wc"><div class="wt">'+w.t+'</div><div class="we">'+w.i+'</div><div class="wv">-2°</div></div>';}).join('')+'</div>'
+      +'<div class="wrow">'+WEATH.map(function(w){
+        return '<div class="wc"><div class="wt">'+w.t+'</div><div class="we">'+w.i+'</div><div class="wv">-2°</div></div>';
+      }).join('')+'</div>'
     +'</div>'
     +'<div class="sec" style="padding-bottom:14px;">'
-      +'<a class="kakao-btn" href="https://map.kakao.com/?q='+encodeURIComponent(c.loc+' 낚시')+'" target="_blank">'
-        +'<div class="kl">K</div><span>카카오맵에서 위치 보기</span><span style="margin-left:auto;">→</span>'
+      +'<a class="tmap-btn" href="https://tmap.life/search?keyword='+encodeURIComponent(c.loc+' 낚시')+'" target="_blank">'
+        +'<div class="tmap-logo"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="tg1" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#FF4DBB"/><stop offset="100%" stop-color="#2DE8C8"/></linearGradient><linearGradient id="tg2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#2DE8C8"/><stop offset="100%" stop-color="#4169FF"/></linearGradient></defs><rect x="2" y="4" width="28" height="8" rx="2" fill="url(#tg1)"/><path d="M13 12 Q19 12 19 18 L19 28 L13 28 Z" fill="url(#tg2)"/></svg></div><span>T map에서 위치 보기</span><span style="margin-left:auto;">→</span>'
       +'</a>'
     +'</div>'
     +'<div class="divider"></div>'
@@ -614,7 +1228,8 @@ function openCatch(c){
     +'<div class="nearby-row">'+BOATS.map(function(b,i){
       return '<div class="ncard" onclick="openBoat(BOATS['+i+'])">'
         +'<div class="ncard-img" style="'+BG[0]+'">'+ICO_BOAT+'</div>'
-        +'<div class="ncard-info"><div class="ncard-name">'+b.name+'</div><div class="ncard-price">'+b.price.toLocaleString()+'원/인</div></div>'
+        +'<div class="ncard-info"><div class="ncard-name">'+b.name+'</div>'
+        +'<div class="ncard-price">'+b.price.toLocaleString()+'원/인</div></div>'
       +'</div>';
     }).join('')+'</div>'
     +'<button class="go-btn" onclick="G.selBoat=BOATS[0];closePanel(\'panel-catch\');startPref();">이 위치로 출조하기</button>';
@@ -626,9 +1241,12 @@ function openBoat(b){
   G.selBoat=b;
   document.getElementById('bsheet').innerHTML=
     '<div class="pull"><div class="pull-bar"></div></div>'
-    +'<div class="brow"><div class="bthumb" style="'+BG[0]+'">'+ICO_BOAT+'</div>'
-      +'<div style="flex:1;min-width:0;"><div class="bname">'+b.name+'</div><div class="bloc">'+b.loc+'</div>'
-        +(b.rest?'<div class="btmap"><div class="tmi">K</div><span>맛집 '+b.rest+' · 숙박 '+(b.hotel||0)+' · 관광지 '+(b.sight||0)+'</span></div>':'')
+    +'<div class="brow">'
+      +'<div class="bthumb" style="'+BG[0]+'">'+ICO_BOAT+'</div>'
+      +'<div style="flex:1;min-width:0;">'
+        +'<div class="bname">'+b.name+'</div>'
+        +'<div class="bloc">'+b.loc+'</div>'
+        +(b.rest?'<div class="btmap"><div class="tmap-logo" style="width:18px;height:18px;"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="tg1" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#FF4DBB"/><stop offset="100%" stop-color="#2DE8C8"/></linearGradient><linearGradient id="tg2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#2DE8C8"/><stop offset="100%" stop-color="#4169FF"/></linearGradient></defs><rect x="2" y="4" width="28" height="8" rx="2" fill="url(#tg1)"/><path d="M13 12 Q19 12 19 18 L19 28 L13 28 Z" fill="url(#tg2)"/></svg></div><span>맛집 '+b.rest+' · 숙박 '+(b.hotel||0)+' · 관광지 '+(b.sight||0)+'</span></div>':'')
       +'</div>'
       +'<svg onclick="closeBoat()" width="20" height="20" viewBox="0 0 20 20" style="cursor:pointer;flex-shrink:0;">'
         +'<line x1="4" y1="4" x2="16" y2="16" stroke="var(--muted)" stroke-width="2" stroke-linecap="round"/>'
@@ -640,79 +1258,312 @@ function openBoat(b){
       +'<div class="gc"><div class="gl">운항시간</div><div class="gv" style="font-size:11px;">'+b.hrs+'</div></div>'
       +'<div class="gc"><div class="gl">가격(1인)</div><div class="gv">'+Math.round(b.price/10000)+'만원</div></div>'
     +'</div>'
-    +'<a class="kakao-btn" style="margin-bottom:10px;" href="https://map.kakao.com/?q='+encodeURIComponent(b.loc.replace('·',' '))+'" target="_blank">'
-      +'<div class="kl">K</div><span>카카오맵 길찾기</span><span style="margin-left:auto;">→</span>'
+    +'<a class="tmap-btn" style="margin-bottom:10px;" href="https://tmap.life/search?keyword='+encodeURIComponent(b.loc.replace('·',' '))+'" target="_blank">'
+      +'<div class="tmap-logo"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="tg1" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#FF4DBB"/><stop offset="100%" stop-color="#2DE8C8"/></linearGradient><linearGradient id="tg2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#2DE8C8"/><stop offset="100%" stop-color="#4169FF"/></linearGradient></defs><rect x="2" y="4" width="28" height="8" rx="2" fill="url(#tg1)"/><path d="M13 12 Q19 12 19 18 L19 28 L13 28 Z" fill="url(#tg2)"/></svg></div><span>T map 길찾기</span><span style="margin-left:auto;">→</span>'
     +'</a>'
-    +'<div class="bbtns"><button class="bbtn-o" onclick="closeBoat()">상세정보</button>'
+    +'<div class="bbtns">'
+      +'<button class="bbtn-o" onclick="closeBoat()">상세정보</button>'
       +'<button class="bbtn-f" onclick="closeBoat();closePanel(\'panel-catch\');startPref();">이 선박으로 출조하기</button>'
     +'</div>';
   document.getElementById('b-overlay').classList.add('on');
   document.getElementById('bsheet').classList.add('open');
 }
-function closeBoat(){document.getElementById('b-overlay').classList.remove('on');document.getElementById('bsheet').classList.remove('open');}
+function closeBoat(){
+  document.getElementById('b-overlay').classList.remove('on');
+  document.getElementById('bsheet').classList.remove('open');
+}
+
 
 // ── PREFERENCES ───────────────────────────────────────────────
-function startPref(){G.pref={step:1,date:null,stay:null,stayType:null,food:null,foodType:null};renderPref();openPanel('panel-pref');}
+var TIDE_DATA=[
+  {h:80,cls:'best'},{h:30,cls:'ok'},{h:85,cls:'best'},
+  {h:55,cls:'good'},{h:20,cls:'ok'},{h:35,cls:'ok'},{h:90,cls:'best'}
+];
+var TIDE_HINT=['조황 좋음','보통','조황 좋음','양호','나쁨','보통','최고'];
+var TIDE_CLS=['good','ok','good','good','bad','ok','good'];
+var CHECKLIST=['낚싯대','릴','낚시 채비','루어·미끼','아이스박스','구명조끼','멀미약','선크림','우비·방풍복','여분 의류','간식·음료','신분증'];
+
+function startPref(){
+  G.pref={step:1,date:null,people:null,level:null,stay:null,stayType:null,food:null,foodType:null};
+  renderPref();openPanel('panel-pref');
+}
 function prefBack(){if(G.pref.step>1){G.pref.step--;renderPref();}else closePanel('panel-pref');}
 function prefNext(){if(G.pref.step<3){G.pref.step++;renderPref();}else{renderFinal();closePanel('panel-pref');openPanel('panel-final');}}
 
-function renderPref(){
-  var p=G.pref,s=p.step;
-  document.getElementById('step-lbl').textContent='취향 수집 '+s+'/3';
-  document.getElementById('pfill').style.width=Math.round(s/3*100)+'%';
-  var html='';
-  if(s===1){
-    var today=new Date(),days=['일','월','화','수','목','금','토'],chips='';
-    for(var i=1;i<=7;i++){var d=new Date(today);d.setDate(today.getDate()+i);var key=d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();chips+='<div class="dc'+(p.date===key?' on':'')+'" onclick="selDate(\''+key+'\')">'+'<div class="dc-date">'+(d.getMonth()+1)+'월 '+d.getDate()+'일</div><div class="dc-day">'+days[d.getDay()]+'요일</div></div>';}
-    html='<div class="ptitle">언제 출조하실 건가요?</div><div class="psub">원하시는 날짜를 선택해 주세요</div><div class="date-chips">'+chips+'</div>';
-  } else if(s===2){
-    html='<div class="ptitle">숙박은 원하시나요?</div><div class="psub">출조 후 숙박 계획을 알려주세요</div>'
-      +'<div class="yn" style="margin-bottom:20px;"><button class="yn-btn y'+(p.stay===true?' on':'')+'" onclick="setStay(true)">네, 원해요!</button><button class="yn-btn n'+(p.stay===false?' on':'')+'" onclick="setStay(false)">아니요</button></div>';
-    if(p.stay===true)html+='<div class="psub2">어떤 숙박을 원하시나요?</div><div class="ogrid">'+[['camping','⛺','캠핑','자연 속 캠핑'],['pension','🏡','펜션','아늑한 펜션'],['hotel','🏨','호텔','편안한 호텔'],['motel','🛏️','모텔/GH','실속형']].map(function(r){return '<div class="ocard'+(p.stayType===r[0]?' on':'')+'" onclick="setStayType(\''+r[0]+'\')">'+'<div class="oemo">'+r[1]+'</div><div class="olbl">'+r[2]+'</div><div class="odesc">'+r[3]+'</div></div>';}).join('')+'</div>';
-  } else {
-    html='<div class="ptitle">맛집도 들르실 건가요?</div><div class="psub">출조 전후 식사 계획을 알려주세요</div>'
-      +'<div class="yn" style="margin-bottom:20px;"><button class="yn-btn y'+(p.food===true?' on':'')+'" onclick="setFood(true)">네, 원해요!</button><button class="yn-btn n'+(p.food===false?' on':'')+'" onclick="setFood(false)">아니요</button></div>';
-    if(p.food===true)html+='<div class="psub2">어떤 음식을 원하시나요?</div><div class="ogrid">'+[['seafood','🦞','해산물','싱싱한 회·조개'],['korean','🍚','한식','든든한 한정식'],['meat','🥩','고기','구이·불고기'],['cafe','☕','카페','오션뷰 카페']].map(function(r){return '<div class="ocard'+(p.foodType===r[0]?' on':'')+'" onclick="setFoodType(\''+r[0]+'\')">'+'<div class="oemo">'+r[1]+'</div><div class="olbl">'+r[2]+'</div><div class="odesc">'+r[3]+'</div></div>';}).join('')+'</div>';
-  }
-  document.getElementById('pref-body').innerHTML=html;
-  var ok=(s===1&&p.date)||(s===2&&p.stay!==null)||(s===3&&p.food!==null);
-  var btn=document.getElementById('next-btn');btn.disabled=!ok;btn.textContent=s<3?'다음':'나만의 플랜 만들기';
+function renderPrefDots(s){
+  var h='';for(var i=1;i<=3;i++)h+='<div class="prog-dot'+(i<s?' done':i===s?' active':'')+'"></div>';
+  document.getElementById('pref-dots').innerHTML=h;
 }
+
+function renderPref(){
+  var p=G.pref,s=p.step,today=new Date();
+  var days=['일','월','화','수','목','금','토'];
+  document.getElementById('step-lbl').textContent=s+' / 3';
+  renderPrefDots(s);
+  var html='';
+
+  if(s===1){
+    var chips='';
+    for(var i=0;i<7;i++){
+      var d=new Date(today);d.setDate(today.getDate()+1+i);
+      var key=d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();
+      chips+='<div class="date-chip'+(p.date===key?' on':'')+'" onclick="selDate(\''+key+'\')">'
+        +'<div class="dc-mo">'+(d.getMonth()+1)+'월</div>'
+        +'<div class="dc-d">'+d.getDate()+'</div>'
+        +'<div class="dc-wd">'+days[d.getDay()]+'</div>'
+        +'<div class="dc-tide '+TIDE_CLS[i]+'">'+TIDE_HINT[i]+'</div>'
+      +'</div>';
+    }
+    html='<div class="pref-ttl">언제 <em>출조</em>하실<br>건가요?</div>'
+      +'<div class="pref-sub">날짜별 예상 조황 등급이 표시됩니다</div>'
+      +'<div class="date-scroll">'+chips+'</div>'
+      +'<div class="pref-section">'
+        +'<div class="pref-section-ttl">동행 인원</div>'
+        +'<div class="people-row">'
+          +[['1명','🎣'],['2명','👫'],['3~4명','👥'],['5명+','🚢']].map(function(r){
+            return '<div class="people-btn'+(p.people===r[0]?' on':'')+'" onclick="selPeople(\''+r[0]+'\')"><span>'+r[1]+'</span><span>'+r[0]+'</span></div>';
+          }).join('')
+        +'</div>'
+      +'</div>'
+      +'<div class="pref-section">'
+        +'<div class="pref-section-ttl">경험 레벨</div>'
+        +'<div class="level-row">'
+          +[['beginner','🌱','입문','처음 도전'],['mid','🐠','중급','몇 번 경험'],['pro','🏆','고수','베테랑']].map(function(r){
+            return '<div class="level-card'+(p.level===r[0]?' on':'')+'" onclick="selLevel(\''+r[0]+'\')">'
+              +'<div class="lv-ico">'+r[1]+'</div><div class="lv-name">'+r[2]+'</div><div class="lv-desc">'+r[3]+'</div>'
+            +'</div>';
+          }).join('')
+        +'</div>'
+      +'</div>';
+
+  } else if(s===2){
+    html='<div class="pref-ttl">숙박은<br><em>원하시나요</em>?</div>'
+      +'<div class="pref-sub">출조 전날 현지 숙박 시 여유로운 출조가 가능해요</div>'
+      +'<div class="pref-section"><div class="yn-toggle">'
+        +'<div class="yn-card yes'+(p.stay===true?' on':'')+'" onclick="setStay(true)"><div class="yn-ico">🏠</div><div class="yn-lbl">네, 원해요</div><div class="yn-sub">현지 숙박 포함</div></div>'
+        +'<div class="yn-card no'+(p.stay===false?' on':'')+'" onclick="setStay(false)"><div class="yn-ico">🚗</div><div class="yn-lbl">당일치기</div><div class="yn-sub">당일 이동</div></div>'
+      +'</div></div>';
+    if(p.stay===true){
+      html+='<div class="pref-section"><div class="pref-section-ttl">숙박 유형</div><div class="opt-grid">'
+        +[['camping','⛺','캠핑','자연 속 야영','2~5만원'],['pension','🏡','펜션','바다뷰 펜션','7~15만원'],['hotel','🏨','호텔','편안한 비즈니스','8~20만원'],['motel','🛏️','모텔/GH','가성비 숙박','3~6만원']].map(function(r){
+          return '<div class="opt-card'+(p.stayType===r[0]?' on':'')+'" onclick="setStayType(\''+r[0]+'\')">'
+            +'<div class="opt-ico">'+r[1]+'</div><div class="opt-name">'+r[2]+'</div><div class="opt-desc">'+r[3]+'</div><div class="opt-price">'+r[4]+'</div>'
+            +'<div class="opt-check"><svg viewBox="0 0 12 10"><polyline points="1 5 4 8 11 1"/></svg></div>'
+          +'</div>';
+        }).join('')
+      +'</div></div>';
+    }
+
+  } else {
+    html='<div class="pref-ttl">맛집도<br><em>들르실 건가요</em>?</div>'
+      +'<div class="pref-sub">고흥 지역 인근 추천 맛집을 코스에 포함시켜 드려요</div>'
+      +'<div class="pref-section"><div class="yn-toggle">'
+        +'<div class="yn-card yes'+(p.food===true?' on':'')+'" onclick="setFood(true)"><div class="yn-ico">🍽️</div><div class="yn-lbl">네, 원해요</div><div class="yn-sub">맛집 코스 포함</div></div>'
+        +'<div class="yn-card no'+(p.food===false?' on':'')+'" onclick="setFood(false)"><div class="yn-ico">⏩</div><div class="yn-lbl">패스할게요</div><div class="yn-sub">출조에 집중</div></div>'
+      +'</div></div>';
+    if(p.food===true){
+      html+='<div class="pref-section"><div class="pref-section-ttl">음식 유형</div><div class="food-row">'
+        +[['seafood','🦞','활어·해산물'],['grill','🐟','생선구이'],['korean','🍚','백반·한정식'],['meat','🥩','고기·구이'],['cafe','☕','오션뷰 카페']].map(function(r){
+          return '<div class="food-chip'+(p.foodType===r[0]?' on':'')+'" onclick="setFoodType(\''+r[0]+'\')">'
+            +'<span class="food-chip-ico">'+r[1]+'</span><span class="food-chip-txt">'+r[2]+'</span>'
+          +'</div>';
+        }).join('')
+      +'</div></div>'
+      +'<div class="pref-section"><div class="pref-section-ttl">추천 맛집 미리보기</div><div style="display:flex;flex-direction:column;gap:8px;">'
+        +[{n:'고흥 꾸덕집',t:'활어회',r:'4.8',p:'2~4만원',i:'🦞'},{n:'영남면 생선구이',t:'생선구이 백반',r:'4.6',p:'1~2만원',i:'🐟'},{n:'오션뷰 커피클럽',t:'카페',r:'4.7',p:'5~8천원',i:'☕'}].map(function(r){
+          return '<div style="display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.07);border-radius:12px;padding:12px;">'
+            +'<div style="width:40px;height:40px;border-radius:10px;background:rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">'+r.i+'</div>'
+            +'<div style="flex:1;"><div style="font-size:13px;font-weight:700;color:#fff;">'+r.n+'</div><div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:2px;">'+r.t+' · ⭐'+r.r+'</div></div>'
+            +'<div style="font-size:12px;font-weight:600;color:#4B9FFF;flex-shrink:0;">'+r.p+'</div>'
+          +'</div>';
+        }).join('')
+      +'</div></div>';
+    }
+  }
+
+  document.getElementById('pref-body').innerHTML=html;
+  var ok=(s===1&&p.date&&p.people&&p.level)||(s===2&&p.stay!==null&&(p.stay===false||p.stayType))||(s===3&&p.food!==null&&(p.food===false||p.foodType));
+  var btn=document.getElementById('next-btn');
+  btn.disabled=!ok;
+  document.getElementById('next-txt').textContent=s<3?'다음':'나만의 플랜 만들기';
+}
+
 function selDate(v){G.pref.date=v;renderPref();}
+function selPeople(v){G.pref.people=v;renderPref();}
+function selLevel(v){G.pref.level=v;renderPref();}
 function setStay(v){G.pref.stay=v;if(!v)G.pref.stayType=null;renderPref();}
 function setStayType(v){G.pref.stayType=v;renderPref();}
 function setFood(v){G.pref.food=v;if(!v)G.pref.foodType=null;renderPref();}
 function setFoodType(v){G.pref.foodType=v;renderPref();}
 
-// ── FINAL ─────────────────────────────────────────────────────
+// ── FINAL PLAN ────────────────────────────────────────────────
 function renderFinal(){
   var p=G.pref,boat=G.selBoat||BOATS[0];
   var stayMap={camping:'왕산가족오토캠핑장',pension:'고흥 그린오션 펜션',hotel:'고흥 그랜드 호텔',motel:'고흥 게스트하우스'};
-  var foodMap={seafood:'고흥 꾸덕집',korean:'고흥 참맛한정식',meat:'바다조개구이',cafe:'오션뷰 커피클럽'};
-  var stayNm=stayMap[p.stayType]||'고흥 그린오션 펜션',foodNm=foodMap[p.foodType]||'고흥 참맛한정식';
+  var foodMap={seafood:'고흥 꾸덕집',grill:'영남면 생선구이',korean:'고흥 참맛한정식',meat:'바다조개구이',cafe:'오션뷰 커피클럽'};
+  var stayPriceMap={camping:40000,pension:120000,hotel:150000,motel:50000};
+  var foodPriceMap={seafood:35000,grill:15000,korean:12000,meat:18000,cafe:7000};
+  var stayNm=stayMap[p.stayType]||'고흥 그린오션 펜션';
+  var foodNm=foodMap[p.foodType]||'영남면 생선구이';
+  var stayPrice=stayPriceMap[p.stayType]||0;
+  var foodPrice=foodPriceMap[p.foodType]||0;
+  var levelLabel={'beginner':'입문자','mid':'중급자','pro':'고수'}[p.level]||'낚시인';
   var dateStr='날짜 미정',endStr='';
-  if(p.date){var pts=p.date.split('-');dateStr=pts[1]+'월 '+pts[2]+'일';if(p.stay){var nd=new Date(+pts[0],+pts[1]-1,+pts[2]+1);endStr=' ~ '+(nd.getMonth()+1)+'월 '+nd.getDate()+'일';}}
-  var tags=['이른 아침','주차장'];if(p.food)tags.push('맛집');if(p.stay)tags.push(p.stayType==='camping'?'캠핑장':'숙박');
-  var items=[{t:'05:40',title:'서울 출발',desc:'즐거운 출조 여행 되세요!'},{t:'07:30',title:'주차장 도착',move:'약 110분',desc:'추천 주차장 · 시간당 2,300원',link:'다른 주차장 찾기 →'}];
-  if(p.food)items.push({t:'08:00',title:'추천 맛집 식사',move:'도보 5분',desc:'"'+foodNm+'"'});
-  items.push({t:'09:00',title:'선박 집결지',move:'차량 15분',desc:'"'+(boat.loc||'').split('·').pop().trim()+'"'});
-  items.push({t:'15:30',title:'출조 완료',desc:'조황 공유하고 포인트도 등록해 보세요!'});
-  if(p.stay)items.push({t:'17:00',title:(p.stayType==='camping'?'캠핑장':'숙박')+' 체크인',move:'차량 10분',desc:'"'+stayNm+'"',link:'다른 숙박 찾기 →'});
-  document.getElementById('final-body').innerHTML=
-    '<div class="plan-hdr"><div class="plan-date">'+dateStr+endStr+'</div><div class="plan-name">홍길동님을 위한 추천 플랜</div>'
-    +'<div class="plan-meta">with <div class="kmap-badge">K</div> 카카오맵 연계</div></div>'
-    +'<div class="day-ttl">'+dateStr+' 일정</div>'
-    +'<div class="day-tags">'+tags.map(function(t){return '<div class="dtag">'+t+'</div>';}).join('')+'</div>'
-    +'<div class="tl">'+items.map(function(it){return '<div class="tl-row"><div class="tl-time">'+it.t+'</div><div class="tl-dot"></div><div class="tl-body"><div class="tl-title">'+it.title+'</div>'+(it.move?'<div class="tl-move"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2.2" stroke-linecap="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg> '+it.move+'</div>':'')+'<div class="tl-desc">'+it.desc+'</div>'+(it.link?'<div class="tl-link">'+it.link+'</div>':'')+'</div></div>';}).join('')+'</div>';
+  if(p.date){var pts=p.date.split('-');dateStr=pts[1]+'월 '+pts[2]+'일';if(p.stay){var nd=new Date(+pts[0],+pts[1]-1,+pts[2]+1);endStr=' — '+(nd.getMonth()+1)+'월 '+nd.getDate()+'일';}}
+  var gearCost=p.level==='beginner'?15000:0;
+  var totalCost=(boat.price||110000)+(p.food?foodPrice:0)+(p.stay?stayPrice:0)+gearCost+12000;
+
+  var items=[
+    {t:'05:40',title:'서울 출발',desc:'약 3시간 30분 소요 예상. 고속도로 정체 전 미리 출발!',tags:['내비 추천','톨게이트 2곳']},
+    {t:'07:30',title:'주차장 도착',move:'약 110분',desc:'선착장 인근 무료 주차 가능 (20면). 성수기엔 만차 주의.',tags:['무료 주차','도보 3분'],link:'T map으로 길찾기 →'},
+  ];
+  if(p.food)items.push({t:'08:00',title:foodNm+' 식사',move:'도보 5분',desc:'영업시간 07:00~20:00 · 인당 '+foodPrice.toLocaleString()+'원 예상.',tags:['예약 불필요']});
+  items.push({t:'09:00',title:'선박 집결 · 출발',move:'차량 10분',desc:boat.name+' · 집결지: '+(boat.loc||'').split('·').pop().trim(),isActive:true,tags:['승선 15분 전']});
+  items.push({t:'09:30',title:'출조 시작',desc:'오늘 조황 예보: ★★★★☆ · 전갱이 마릿수 좋은 날!',tags:['추천 수심 10~15m','루어: 스피닝베이트']});
+  items.push({t:'15:00',title:'귀항',desc:'조황 사진 찍고 포인트맵에 기록을 남겨보세요!',tags:['조과 공유']});
+  if(p.stay)items.push({t:'17:00',title:stayNm+' 체크인',move:'차량 15분',desc:'인당 '+stayPrice.toLocaleString()+'원 예상 · 조기 예약 필수.',tags:['조기 예약 추천'],link:'예약하기 →'});
+  items.push({t:p.stay?'익일 10:00':'19:30',title:'귀가',move:'약 3시간 30분',desc:'안전 귀가하세요!',tags:[]});
+
+  var html=
+    '<div class="plan-hero">'
+      +'<div class="plan-fish-badge"><span>🎣</span> 전갱이 · 고흥 영남면</div>'
+      +'<div class="plan-date-big">'+dateStr+endStr+'</div>'
+      +'<div class="plan-name-tag">'+levelLabel+'을 위한 맞춤 출조 플랜 · '+(p.people||'1명')+'</div>'
+      +'<div class="plan-tags">'
+        +'<div class="plan-tag hi">조황 ★★★★☆</div>'
+        +'<div class="plan-tag">'+boat.name+'</div>'
+        +(p.stay?'<div class="plan-tag">숙박 포함</div>':'')
+        +(p.food?'<div class="plan-tag">맛집 포함</div>':'')
+      +'</div>'
+    +'</div>'
+    +'<div class="plan-stats">'
+      +'<div class="plan-stat"><div class="ps-val">'+Math.round(totalCost/10000)+'<span class="ps-unit">만원~</span></div><div class="ps-lbl">예상 총비용</div></div>'
+      +'<div class="plan-stat"><div class="ps-val">'+(p.stay?2:1)+'<span class="ps-unit">일</span></div><div class="ps-lbl">여행 기간</div></div>'
+      +'<div class="plan-stat"><div class="ps-val">6h<span class="ps-unit">30m</span></div><div class="ps-lbl">출조 시간</div></div>'
+    +'</div>'
+    // Spot
+    +'<div class="plan-card" style="margin-top:16px;">'
+      +'<div class="spot-card" style="margin:0;border-radius:0;">'
+        +'<div class="spot-name">고흥 영남면 앞바다</div>'
+        +'<div class="spot-sub">전라남도 고흥군 영남면 · 수심 8~20m</div>'
+        +'<div class="spot-stats">'
+          +'<div class="sst"><div class="sst-v">★★★★</div><div class="sst-l">오늘 조황</div></div>'
+          +'<div class="sst"><div class="sst-v">15m</div><div class="sst-l">추천 수심</div></div>'
+          +'<div class="sst"><div class="sst-v">사리</div><div class="sst-l">오늘 물때</div></div>'
+        +'</div>'
+      +'</div>'
+    +'</div>'
+    // Forecast
+    +'<div class="plan-card" style="margin-top:10px;">'
+      +'<div class="pc-head"><div class="pc-ttl"><div class="pc-ico" style="background:#fff3e0;">🌤</div>출조 당일 날씨</div></div>'
+      +'<div class="forecast-row">'
+        +[{t:'07시',i:'🌤',c:'9°',w:'1.2m/s'},{t:'08시',i:'🌤',c:'11°',w:'1.5m/s'},{t:'09시',i:'⛅',c:'13°',w:'2.0m/s'},{t:'11시',i:'☁️',c:'14°',w:'2.3m/s'},{t:'13시',i:'⛅',c:'15°',w:'1.8m/s'},{t:'15시',i:'🌤',c:'14°',w:'1.4m/s'},{t:'17시',i:'🌅',c:'12°',w:'1.1m/s'}].map(function(w){
+          return '<div class="fc-item"><div class="fc-time">'+w.t+'</div><div class="fc-ico">'+w.i+'</div><div class="fc-temp">'+w.c+'</div><div class="fc-wind">'+w.w+'</div></div>';
+        }).join('')
+      +'</div>'
+    +'</div>'
+    // Tide
+    +'<div class="plan-card" style="margin-top:10px;">'
+      +'<div class="pc-head"><div class="pc-ttl"><div class="pc-ico" style="background:#e3f0ff;">🌊</div>조수 예보</div></div>'
+      +'<div class="tide-chart">'
+        +'<div class="tide-bar-wrap">'
+          +[{h:45,c:'ok'},{h:65,c:'good'},{h:85,c:'best'},{h:90,c:'best'},{h:80,c:'best'},{h:60,c:'good'},{h:40,c:'ok'},{h:25,c:'ok'},{h:20,c:'ok'},{h:30,c:'ok'},{h:50,c:'good'},{h:70,c:'good'}].map(function(b){
+            return '<div class="tide-bar '+b.c+'" style="height:'+b.h+'%"></div>';
+          }).join('')
+        +'</div>'
+        +'<div class="tide-labels">'+['03','05','07','09','11','13','15','17','19','21','23','01'].map(function(h){return '<span class="tide-lbl">'+h+'</span>';}).join('')+'</div>'
+        +'<div class="tide-legend"><div class="tl-item"><div class="tl-dot" style="background:#34C759;"></div>최적</div><div class="tl-item"><div class="tl-dot" style="background:#4B9FFF;"></div>양호</div><div class="tl-item"><div class="tl-dot" style="background:#E5E5EA;"></div>주의</div></div>'
+      +'</div>'
+    +'</div>'
+    // Timeline
+    +'<div class="plan-card" style="margin-top:10px;">'
+      +'<div class="pc-head"><div class="pc-ttl"><div class="pc-ico" style="background:#f0e6ff;">📍</div>상세 일정</div></div>'
+      +'<div class="tl-card">'
+        +items.map(function(it,i){
+          return '<div class="tl2-row">'
+            +(i<items.length-1?'<div class="tl2-line"></div>':'')
+            +'<div class="tl2-time">'+it.t+'</div>'
+            +'<div class="tl2-dot'+(it.isActive?' active':'')+'"></div>'
+            +'<div class="tl2-body">'
+              +'<div class="tl2-title">'+it.title+'</div>'
+              +(it.move?'<div class="tl2-move"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>'+it.move+'</div>':'')
+              +'<div class="tl2-desc">'+it.desc+'</div>'
+              +(it.tags&&it.tags.length?'<div class="tl2-tag-row">'+it.tags.map(function(t){return '<span class="tl2-tag">'+t+'</span>';}).join('')+'</div>':'')
+              +(it.link?'<div class="tl2-link"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>'+it.link+'</div>':'')
+            +'</div>'
+          +'</div>';
+        }).join('')
+      +'</div>'
+    +'</div>'
+    // Cost
+    +'<div class="plan-card" style="margin-top:10px;">'
+      +'<div class="pc-head"><div class="pc-ttl"><div class="pc-ico" style="background:#e8f8ee;">💰</div>예상 비용 (1인 기준)</div></div>'
+      +'<div class="cost-list">'
+        +'<div class="cost-row"><span class="cost-label">선박 출조비</span><span class="cost-val">'+((boat.price||110000)).toLocaleString()+'원</span></div>'
+        +(p.food?'<div class="cost-row"><span class="cost-label">식사비 <span>'+foodNm+'</span></span><span class="cost-val">'+foodPrice.toLocaleString()+'원</span></div>':'')
+        +(p.stay?'<div class="cost-row"><span class="cost-label">숙박비 <span>'+stayNm+'</span></span><span class="cost-val">'+stayPrice.toLocaleString()+'원~</span></div>':'')
+        +(gearCost?'<div class="cost-row"><span class="cost-label">입문 장비 렌탈</span><span class="cost-val">'+gearCost.toLocaleString()+'원</span></div>':'')
+        +'<div class="cost-row"><span class="cost-label">톨게이트·주차비</span><span class="cost-val">12,000원</span></div>'
+      +'</div>'
+      +'<div class="cost-total"><span class="cost-total-lbl">총 예상 비용</span><span class="cost-total-val">'+totalCost.toLocaleString()+'원~</span></div>'
+    +'</div>'
+    // Checklist
+    +'<div class="plan-card" style="margin-top:10px;">'
+      +'<div class="pc-head"><div class="pc-ttl"><div class="pc-ico" style="background:#fef3e2;">📦</div>챙겨야 할 것</div><div class="pc-action" onclick="checkAll()">모두 체크</div></div>'
+      +'<div class="check-grid">'
+        +CHECKLIST.map(function(item,i){return '<div class="check-item" id="ck'+i+'" onclick="toggleCheck('+i+')"><div class="check-box"><svg viewBox="0 0 12 10"><polyline points="1 5 4 8 11 1"/></svg></div><span class="check-txt">'+item+'</span></div>';}).join('')
+      +'</div>'
+    +'</div>'
+    +'<div style="height:16px;"></div>';
+
+  document.getElementById('final-body').innerHTML=html;
   document.getElementById('final-acts').innerHTML=
-    '<button class="pa pa-no" onclick="G.pref.step=1;renderPref();closePanel(\'panel-final\');openPanel(\'panel-pref\');">다시 선택</button>'
-    +'<button class="pa pa-yes" onclick="showToast(\'플랜이 저장되었습니다!\')">플랜 저장</button>';
+    '<div style="display:flex;flex-direction:column;gap:8px;width:100%;">'
+    +'<button class="tmap-nav-btn" onclick="openTMapRoute()">'
+      +'<svg viewBox="0 0 24 24"><path d="M3 11l19-9-9 19-2-8-8-2z"/></svg>'
+      +'이 경로로 T map 바로가기'
+    +'</button>'
+    +'<div style="display:flex;gap:8px;">'
+      +'<button class="pa pa-no" style="flex:1;" onclick="G.pref.step=1;renderPref();closePanel(\'panel-final\');openPanel(\'panel-pref\');">다시 선택</button>'
+      +'<button class="pa pa-yes" style="flex:1;" onclick="savePlan()">플랜 저장 💾</button>'
+    +'</div>'
+    +'</div>';
+}
+
+function checkAll(){CHECKLIST.forEach(function(_,i){document.getElementById('ck'+i).classList.add('done');});}
+function toggleCheck(i){document.getElementById('ck'+i).classList.toggle('done');}
+function savePlan(){showToast('📅 플랜이 저장되었습니다!');}
+
+function openTMapRoute(){
+  var boat=G.selBoat||BOATS[0];
+  // TMap 앱 딥링크 (앱 설치시) → 웹 fallback
+  var goalLat=boat.lat||34.581;
+  var goalLng=boat.lng||127.263;
+  var goalName=encodeURIComponent(boat.name||'선착장');
+  // TMap 앱 딥링크
+  var tmapApp='tmap://route?goalname='+goalName+'&goalx='+goalLng+'&goaly='+goalLat+'&reqCoordType=WGS84GEO&resCoordType=WGS84GEO';
+  // TMap 웹 fallback
+  var tmapWeb='https://tmap.life/route?goalx='+goalLng+'&goaly='+goalLat+'&goalname='+goalName;
+  // 앱 열기 시도 후 실패하면 웹으로
+  var iframe=document.createElement('iframe');
+  iframe.style.display='none';
+  iframe.src=tmapApp;
+  document.body.appendChild(iframe);
+  setTimeout(function(){
+    document.body.removeChild(iframe);
+    window.open(tmapWeb,'_blank');
+  },1500);
+  showToast('🗺 T map으로 연결 중...');
 }
 
 // ── UTILS ─────────────────────────────────────────────────────
 function openPanel(id){document.getElementById(id).classList.add('open');}
 function closePanel(id){document.getElementById(id).classList.remove('open');}
-function showToast(msg){var t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},2200);}
+function showToast(msg){
+  var t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(function(){t.classList.remove('show');},2200);
+}
 
 // ── BOOT ──────────────────────────────────────────────────────
 initMap();
