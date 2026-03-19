@@ -1150,7 +1150,7 @@ function initMap(){
   var mapEl=document.getElementById('map');
   if(typeof kakao!=='undefined'&&kakao.maps){
     USE_KAKAO=true;
-    MAP=new kakao.maps.Map(mapEl,{center:new kakao.maps.LatLng(36.2,127.8),level:8});
+    MAP=new kakao.maps.Map(mapEl,{center:new kakao.maps.LatLng(36.5,127.8),level:13});
     kakao.maps.event.addListener(MAP,'zoom_changed',onZoom);
     // 지도 클릭 시 시트 닫기
     kakao.maps.event.addListener(MAP,'click',function(){
@@ -1195,20 +1195,25 @@ function addClusters(){
   clearBoatMarkers();
   ALL_CATCH_MARKERS.forEach(function(m){m.setMap(null);});
   ALL_CATCH_MARKERS=[];
-  if(!USE_KAKAO)return;
+  if(!USE_KAKAO||!MAP)return;
+
+  // 전국 요약 클러스터 오버레이 (working 파일 방식 - 단순하고 안정적)
   CLUSTERS.forEach(function(cl){
     var sz=cl.n>200?72:cl.n>60?58:cl.n>30?48:42;
     var fs=cl.n>200?17:cl.n>60?15:13;
-    var outerSz=(sz+16)+'px';
     var mainFish=cl.fish.split(',')[0];
-    var html='<div class="kc-wrap">'
-      +'<div class="kc-outer" style="width:'+outerSz+';height:'+outerSz+';"></div>'
-      +'<div class="kc-inner" style="width:'+sz+'px;height:'+sz+'px;font-size:'+fs+'px;">'
-        +'<span class="kc-n">'+cl.n+'</span>'
-        +'<span class="kc-lbl">'+mainFish+'</span>'
-      +'</div></div>';
+    var html='<div class="cm" style="width:'+sz+'px;height:'+sz+'px;font-size:'+fs+'px;cursor:pointer;'
+      +'display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;'
+      +'border-radius:50%;background:radial-gradient(circle at 35% 30%,#4d8cff,#0038cc);'
+      +'border:2.5px solid rgba(255,255,255,.92);color:#fff;font-family:sans-serif;'
+      +'box-shadow:0 4px 16px rgba(26,107,255,.5);">'
+      +'<span style="font-weight:900;font-size:inherit;">'+cl.n+'</span>'
+      +'<span style="font-size:9px;font-weight:600;opacity:.85;">'+mainFish+'</span>'
+    +'</div>';
     addOverlay(cl.lat,cl.lng,html,3,(function(cll){return function(){zoomToCluster(cll);};})(cl));
   });
+
+  // 선박 마커
   addBoatMarkersToMap();
 }
 
@@ -1603,8 +1608,8 @@ function resetMap(){
   if(USE_KAKAO&&MAP){
     clearMarkers();clearBoatMarkers();
     addClusters();
-    MAP.setCenter(mkLatLng(36.2,127.8));
-    MAP.setLevel(8,{animate:true});
+    MAP.setCenter(mkLatLng(36.5,127.8));
+    MAP.setLevel(13,{animate:true});
   } else {resetSVGView();}
   if(G.ctaOn){document.getElementById('cta').style.cssText='opacity:1;display:flex;transform:none;';}
 }
