@@ -2237,23 +2237,7 @@ function showToast(msg){
 }
 
 // ── BOOT ──────────────────────────────────────────────────────
-// 카카오맵 초기화 - GitHub Pages 호환
-function _startMap(){
-  if(typeof kakao!=='undefined'&&kakao.maps&&kakao.maps.Map){
-    initMap();
-  } else if(typeof kakao!=='undefined'&&kakao.maps){
-    kakao.maps.load(initMap);
-  } else {
-    // SDK 로드 실패 - SVG fallback
-    var el=document.getElementById('map');
-    if(el){el.innerHTML=svgKoreaMap();el.style.background='#c8d9e6';addSVGMarkers();}
-  }
-}
-if(document.readyState==='complete'){
-  _startMap();
-} else {
-  window.addEventListener('load', _startMap);
-}
+initMap();
 </script>
 </body>
 </html>
