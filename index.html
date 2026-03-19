@@ -751,11 +751,7 @@ body{background:#1a1a2e;display:flex;justify-content:center;align-items:center;m
     <div class="pull" onclick="hideSheet()" style="cursor:pointer;">
       <div class="pull-bar"></div>
     </div>
-    <div style="position:absolute;top:8px;right:12px;z-index:5;">
-      <div onclick="hideSheet()" style="width:28px;height:28px;border-radius:50%;background:var(--g1);display:flex;align-items:center;justify-content:center;cursor:pointer;">
-        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="var(--sub)" stroke-width="2" stroke-linecap="round"><line x1="1" y1="1" x2="11" y2="11"/><line x1="11" y1="1" x2="1" y2="11"/></svg>
-      </div>
-    </div>
+
     <div class="sheet-list" id="sheet-list"></div>
   </div>
 
@@ -1373,12 +1369,18 @@ function doSearch(){
 // 전체 클러스터에서 어종 검색
 function getAllMatchingCatches(q){
   var result=[];
+  // 정확히 해당 어종만 (fish === q)인 조과 먼저
   ['c0','c1','c2','c3','c4','c5'].forEach(function(k){
-    var matches=(ALL_CATCHES[k]||[]).filter(function(cc){
-      return cc.fish===q||cc.fish.indexOf(q)!==-1;
-    });
-    result=result.concat(matches);
+    var exact=(ALL_CATCHES[k]||[]).filter(function(cc){return cc.fish===q;});
+    result=result.concat(exact);
   });
+  // 정확 일치가 없으면 포함 검색
+  if(result.length===0){
+    ['c0','c1','c2','c3','c4','c5'].forEach(function(k){
+      var partial=(ALL_CATCHES[k]||[]).filter(function(cc){return cc.fish.indexOf(q)!==-1;});
+      result=result.concat(partial);
+    });
+  }
   return result;
 }
 
@@ -1562,7 +1564,12 @@ function renderSheet(q){
   document.getElementById('sheet-list').innerHTML=
     '<div style="padding:10px 16px 6px;display:flex;align-items:center;justify-content:space-between;">'
       +'<div style="font-size:13px;font-weight:700;color:var(--text);">'+regionLabel+' 최근 조과 <span style="color:var(--blue);">'+list.length+'건</span></div>'
-      +'<div style="font-size:11px;color:var(--muted);">최신순</div>'
+      +'<div style="display:flex;align-items:center;gap:10px;">'
+        +'<span style="font-size:11px;color:var(--muted);">최신순</span>'
+        +'<div onclick="hideSheet()" style="width:24px;height:24px;border-radius:50%;background:var(--g2);display:flex;align-items:center;justify-content:center;cursor:pointer;">'
+          +'<svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="var(--sub)" stroke-width="2.5" stroke-linecap="round"><line x1="2" y1="2" x2="10" y2="10"/><line x1="10" y1="2" x2="2" y2="10"/></svg>'
+        +'</div>'
+      +'</div>'
     +'</div>'
     +list.map(function(cc,i){
       var ci=CATCHES.indexOf(cc);
@@ -2230,17 +2237,22 @@ function showToast(msg){
 }
 
 // ── BOOT ──────────────────────────────────────────────────────
-// 카카오맵 초기화
-if(document.readyState==='loading'){
-  document.addEventListener('DOMContentLoaded', function(){
-    if(typeof kakao!=='undefined'&&kakao.maps){initMap();}
-    else if(typeof kakao!=='undefined'){kakao.maps.load(initMap);}
-    else{var el=document.getElementById('map');if(el){el.innerHTML=svgKoreaMap();el.style.background='#c8d9e6';addSVGMarkers();}}
-  });
+// 카카오맵 초기화 - GitHub Pages 호환
+function _startMap(){
+  if(typeof kakao!=='undefined'&&kakao.maps&&kakao.maps.Map){
+    initMap();
+  } else if(typeof kakao!=='undefined'&&kakao.maps){
+    kakao.maps.load(initMap);
+  } else {
+    // SDK 로드 실패 - SVG fallback
+    var el=document.getElementById('map');
+    if(el){el.innerHTML=svgKoreaMap();el.style.background='#c8d9e6';addSVGMarkers();}
+  }
+}
+if(document.readyState==='complete'){
+  _startMap();
 } else {
-  if(typeof kakao!=='undefined'&&kakao.maps){initMap();}
-  else if(typeof kakao!=='undefined'){kakao.maps.load(initMap);}
-  else{var el=document.getElementById('map');if(el){el.innerHTML=svgKoreaMap();el.style.background='#c8d9e6';addSVGMarkers();}}
+  window.addEventListener('load', _startMap);
 }
 </script>
 </body>
