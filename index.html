@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>어바웃피싱 포인트맵</title>
 <!-- ★ 티맵 연동 (카카오맵 엔진) -->
-<script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=74eb939f1bcf90f450e7b1c3055eb904&libraries=services"></script>
+<script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=74eb939f1bcf90f450e7b1c3055eb904&libraries=services,clusterer"></script>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
@@ -51,7 +51,7 @@ body{background:#1a1a2e;display:flex;justify-content:center;align-items:center;m
 .cta-x svg{width:11px;height:11px;stroke:#fff;stroke-width:2.5;stroke-linecap:round;}
 
 /* Bottom nav */
-.bnav{position:absolute;bottom:0;left:0;right:0;height:80px;background:#fff;display:flex;align-items:center;padding-bottom:16px;z-index:50;}
+.bnav{position:absolute;bottom:0;left:0;right:0;height:80px;background:#fff;display:flex;align-items:center;padding-bottom:16px;z-index:50;box-shadow:0 -1px 0 rgba(0,0,0,.06);}
 
 .nitem{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--muted);font-size:10px;font-weight:500;cursor:pointer;transition:color .2s;}
 .nitem.on{color:var(--blue);}
@@ -586,7 +586,36 @@ body{background:#1a1a2e;display:flex;justify-content:center;align-items:center;m
 .dm-anim{animation:markerDrop .42s cubic-bezier(.34,1.56,.64,1) both;}
 .dm-pulse .dm{animation:markerPulse 1.4s ease-out 0.3s;}
 .bm-anim{animation:markerDrop .42s cubic-bezier(.34,1.56,.64,1) both;}
-/* ── Premium Cluster Marker ── */
+/* ── Custom Clusterer Overlay ── */
+.kc-wrap{cursor:pointer;position:relative;}
+.kc-outer{
+  border-radius:50%;
+  background:rgba(26,107,255,.12);
+  position:absolute;
+  top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  animation:clusterRing 2.5s ease-out infinite;
+  pointer-events:none;
+}
+.kc-inner{
+  border-radius:50%;
+  background:radial-gradient(circle at 35% 30%,#4d8cff,#0040d0);
+  border:2.5px solid rgba(255,255,255,.95);
+  color:#fff;
+  font-weight:900;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  box-shadow:0 6px 20px rgba(26,107,255,.55);
+  cursor:pointer;
+  font-family:'Noto Sans KR',sans-serif;
+  line-height:1;gap:2px;
+  position:relative;
+  transition:transform .2s;
+}
+.kc-wrap:hover .kc-inner{transform:scale(1.1);}
+.kc-n{font-weight:900;letter-spacing:-.5px;}
+.kc-lbl{font-size:8px;font-weight:600;opacity:.8;}
+/* ── Premium Cluster Marker (legacy) ── */
 @keyframes clusterPop{
   0%{opacity:0;transform:translate(-50%,-50%) scale(.4);}
   70%{transform:translate(-50%,-50%) scale(1.1);}
@@ -858,6 +887,14 @@ var ALL_CATCHES = {
     {id:408,fish:'볼락',angler:'경남볼락야간',date:'3월 16일',loc:'경남 통영 도남항',method:'루어낚시',rig:'마이크로지그 2g',size:'24cm',weight:'0.32kg',count:19,lat:34.85,lng:128.42,tide:'조금',wind:'1.2m/s 남',bar:'1023hpa',wave:'0.1m',memo:'도남항 야간 볼락 19마리! 마이크로지그 최강.',tags:['#볼락','#도남항','#야간','#마릿수']},
     {id:409,fish:'전갱이',angler:'창원배꾼',date:'3월 14일',loc:'경남 창원 구복리',method:'선상낚시',rig:'전갱이채비',size:'34cm',weight:'1.0kg',count:10,lat:35.05,lng:128.58,tide:'사리',wind:'2.5m/s 북동',bar:'1019hpa',wave:'0.4m',memo:'구복리 전갱이 10마리! 선상 채비 기본으로 터졌어요.',tags:['#전갱이','#창원','#선상']},
     {id:410,fish:'볼락',angler:'삼천포야간꾼',date:'3월 13일',loc:'경남 사천 삼천포',method:'루어낚시',rig:'지그헤드 2g',size:'27cm',weight:'0.38kg',count:16,lat:34.92,lng:128.08,tide:'조금',wind:'1.0m/s 남',bar:'1024hpa',wave:'0.1m',memo:'삼천포 야간 볼락 16마리! 미항 방파제 포인트.',tags:['#볼락','#삼천포','#야간','#마릿수']},
+    // 추가 경남 조과 (위치 분산)
+    {id:421,fish:'전갱이',angler:'통영시내꾼',date:'3월 14일',loc:'경남 통영 미수동',method:'루어낚시',rig:'스피닝베이트',size:'31cm',weight:'0.85kg',count:4,lat:34.858,lng:128.437,tide:'조금',wind:'2.0m/s 동',bar:'1021hpa',wave:'0.3m',memo:'미수동 포인트 전갱이 4마리.',tags:['#전갱이','#통영','#루어']},
+    {id:422,fish:'감성돔',angler:'사천꾼',date:'3월 13일',loc:'경남 사천 선구마을',method:'찌낚시',rig:'구멍찌',size:'44cm',weight:'1.5kg',count:2,lat:34.985,lng:128.085,tide:'사리',wind:'1.8m/s 남',bar:'1022hpa',wave:'0.2m',memo:'선구마을 감성돔 44cm 쾌조!',tags:['#감성돔','#사천','#찌낚시']},
+    {id:423,fish:'부시리',angler:'거제남부꾼',date:'3월 12일',loc:'경남 거제 남부면',method:'루어낚시',rig:'메탈지그',size:'72cm',weight:'3.8kg',count:1,lat:34.492,lng:128.635,tide:'한사리',wind:'3.5m/s 남서',bar:'1016hpa',wave:'0.9m',memo:'거제 남부 부시리 72cm!',tags:['#부시리','#거제','#메탈지그']},
+    {id:424,fish:'방어',angler:'거제동부꾼',date:'3월 11일',loc:'경남 거제 동부면',method:'선상낚시',rig:'갈치미끼',size:'79cm',weight:'4.9kg',count:1,lat:34.821,lng:128.701,tide:'조금',wind:'2.8m/s 북동',bar:'1019hpa',wave:'0.5m',memo:'동부면 방어 79cm 대물!',tags:['#방어','#거제동부','#대물']},
+    {id:425,fish:'전갱이',angler:'고성꾼',date:'3월 11일',loc:'경남 고성 자란만',method:'루어낚시',rig:'스피닝베이트',size:'36cm',weight:'1.1kg',count:6,lat:34.812,lng:128.305,tide:'사리',wind:'1.5m/s 북',bar:'1023hpa',wave:'0.2m',memo:'자란만 전갱이 6마리 마릿수!',tags:['#전갱이','#고성','#자란만']},
+    {id:426,fish:'참돔',angler:'욕지도꾼',date:'3월 10일',loc:'경남 통영 욕지도',method:'선상낚시',rig:'타이라바',size:'57cm',weight:'2.7kg',count:1,lat:34.625,lng:128.115,tide:'무시',wind:'2.5m/s 서',bar:'1020hpa',wave:'0.4m',memo:'욕지도 참돔 57cm 타이라바.',tags:['#참돔','#욕지도','#타이라바']},
+    {id:427,fish:'볼락',angler:'남해야간꾼',date:'3월 10일',loc:'경남 남해 창선도',method:'루어낚시',rig:'마이크로지그',size:'25cm',weight:'0.32kg',count:13,lat:34.852,lng:127.918,tide:'조금',wind:'1.0m/s 남',bar:'1024hpa',wave:'0.1m',memo:'창선도 야간 볼락 13마리!',tags:['#볼락','#창선도','#야간']},
   ],
   // 남해 (참돔,도다리,감성돔,볼락,방어)
   c4:[
@@ -981,6 +1018,85 @@ function initMap(){
   }
 }
 
+
+// ── SVG FALLBACK (미리보기 / 카카오맵 로드 실패 시) ──────────────
+var svgMode='korea', svgZoom={scale:1,tx:0,ty:0};
+var SVG_CLUSTERS=[
+  {n:96, sx:124,sy:172,fish:'볼락,우럭,광어',cidx:0},
+  {n:30, sx:86, sy:300,fish:'감성돔,볼락',cidx:1},
+  {n:32, sx:93, sy:374,fish:'우럭,넙치',cidx:2},
+  {n:287,sx:262,sy:458,fish:'전갱이,부시리,방어',cidx:3},
+  {n:65, sx:193,sy:528,fish:'참돔,도다리',cidx:4},
+  {n:36, sx:306,sy:444,fish:'대구,가자미',cidx:5},
+];
+
+function svgKoreaMap(){
+  return '<svg id="ksvg" xmlns="http://www.w3.org/2000/svg" width="390" height="844" viewBox="0 0 390 844" style="position:absolute;top:0;left:0;transition:transform .5s cubic-bezier(.4,0,.2,1)">'
+    +'<rect width="390" height="844" fill="#b8d4e8"/>'
+    +'<path d="M195,55 L212,58 L230,54 L248,60 L262,70 L272,84 L276,100 L274,116 L278,132 L283,148 L280,166 L284,182 L288,198 L285,216 L290,232 L292,250 L288,268 L292,284 L296,300 L298,318 L295,336 L300,354 L302,372 L299,390 L303,408 L305,426 L301,444 L297,460 L292,476 L287,492 L281,508 L274,522 L267,536 L259,550 L250,562 L241,572 L232,580 L222,587 L212,592 L200,595 L188,592 L177,587 L167,579 L158,570 L149,558 L140,546 L132,532 L124,516 L117,500 L110,484 L104,468 L100,450 L96,434 L93,416 L91,398 L90,380 L93,362 L96,344 L99,326 L103,308 L106,290 L110,272 L114,256 L117,238 L114,220 L116,202 L120,186 L116,170 L114,154 L117,138 L122,124 L127,110 L133,97 L141,85 L152,74 L163,65 L177,58 Z" fill="#e8d5b0" stroke="#c4a96a" stroke-width="1.5"/>'
+    +'<ellipse cx="158" cy="726" rx="40" ry="22" fill="#e8d5b0" stroke="#c4a96a" stroke-width="1.5"/>'
+    +'<text x="48" y="380" text-anchor="middle" font-size="12" fill="#5a8aa8" font-style="italic" font-family="sans-serif">서해</text>'
+    +'<text x="342" y="380" text-anchor="middle" font-size="12" fill="#5a8aa8" font-style="italic" font-family="sans-serif">동해</text>'
+    +'<text x="195" y="660" text-anchor="middle" font-size="12" fill="#5a8aa8" font-style="italic" font-family="sans-serif">남해</text>'
+    +'<text x="200" y="108" text-anchor="middle" font-size="10" fill="#7a6a4a" font-weight="600" font-family="sans-serif">강원도</text>'
+    +'<text x="175" y="195" text-anchor="middle" font-size="10" fill="#7a6a4a" font-weight="600" font-family="sans-serif">경기도</text>'
+    +'<text x="152" y="290" text-anchor="middle" font-size="10" fill="#7a6a4a" font-weight="600" font-family="sans-serif">충청남도</text>'
+    +'<text x="138" y="400" text-anchor="middle" font-size="10" fill="#7a6a4a" font-weight="600" font-family="sans-serif">전북</text>'
+    +'<text x="252" y="396" text-anchor="middle" font-size="10" fill="#7a6a4a" font-weight="600" font-family="sans-serif">경상북도</text>'
+    +'<text x="144" y="496" text-anchor="middle" font-size="10" fill="#7a6a4a" font-weight="600" font-family="sans-serif">전라남도</text>'
+    +'<text x="258" y="490" text-anchor="middle" font-size="10" fill="#7a6a4a" font-weight="600" font-family="sans-serif">경상남도</text>'
+    +'<circle cx="180" cy="172" r="3" fill="#c4906a"/><text x="187" y="175" font-size="9" fill="#7a5a3a" font-family="sans-serif">서울</text>'
+    +'<circle cx="280" cy="490" r="3" fill="#c4906a"/><text x="287" y="493" font-size="9" fill="#7a5a3a" font-family="sans-serif">부산</text>'
+    +'</svg>';
+}
+
+function addSVGMarkers(){
+  var mapEl=document.getElementById('map');
+  var old=document.getElementById('svg-ov');if(old)old.remove();
+  var ov=document.createElement('div');
+  ov.id='svg-ov';
+  ov.style.cssText='position:absolute;inset:0;z-index:2;pointer-events:none;';
+  mapEl.appendChild(ov);
+  SVG_CLUSTERS.forEach(function(cl){
+    var sz=cl.n>200?72:cl.n>60?58:cl.n>30?48:42;
+    var fs=cl.n>200?17:cl.n>60?15:13;
+    var px=cl.sx*svgZoom.scale+svgZoom.tx;
+    var py=cl.sy*svgZoom.scale+svgZoom.ty;
+    var el=document.createElement('div');
+    el.className='kc-inner';
+    el.style.cssText='position:absolute;width:'+sz+'px;height:'+sz+'px;font-size:'+fs+'px;'
+      +'left:'+px+'px;top:'+py+'px;transform:translate(-50%,-50%);pointer-events:all;cursor:pointer;';
+    el.innerHTML='<span class="kc-n">'+cl.n+'</span><span class="kc-lbl">'+cl.fish.split(',')[0]+'</span>';
+    el.addEventListener('click',(function(cll){return function(){zoomSVG(cll);};})(cl));
+    ov.appendChild(el);
+  });
+}
+
+function zoomSVG(cl){
+  svgMode='detail';G.mode='detail';
+  G_CLUSTER_IDX=cl.cidx!==undefined?cl.cidx:3;
+  CATCHES=ALL_CATCHES['c'+G_CLUSTER_IDX]||ALL_CATCHES.c3;
+  G.q=cl.fish.split(',')[0];
+  document.getElementById('searchInput').value=G.q;
+  toggleClearBtn();
+  hideCTA();
+  var scale=2.2;
+  svgZoom={scale:scale,tx:195-(cl.sx||195)*scale,ty:390-(cl.sy||422)*scale};
+  var svg=document.getElementById('ksvg');
+  if(svg)svg.style.transform='scale('+scale+') translate('+svgZoom.tx/scale+'px,'+svgZoom.ty/scale+'px)';
+  setTimeout(function(){
+    var ov=document.getElementById('svg-ov');if(ov)ov.remove();
+    showSheet(G.q);
+  },450);
+}
+
+function resetSVGView(){
+  svgMode='korea';svgZoom={scale:1,tx:0,ty:0};
+  var svg=document.getElementById('ksvg');
+  if(svg)svg.style.transform='none';
+  addSVGMarkers();
+}
+
 // ── 카카오맵 마커 관리 ─────────────────────────────────────────
 function mkLatLng(lat,lng){return new kakao.maps.LatLng(lat,lng);}
 
@@ -1006,18 +1122,32 @@ function clearMarkers(){
   MARKERS=[];
 }
 
+var CATCH_CLUSTERER=null;  // 카카오맵 MarkerClusterer 인스턴스
+var ALL_CATCH_MARKERS=[];  // 모든 조과 카카오 Marker 객체
+
 function addClusters(){
   clearMarkers();
-  CLUSTERS.forEach(function(c){
-    var sz=c.n>200?72:c.n>60?58:c.n>30?48:42;
-    var fs=c.n>200?17:c.n>60?15:13;
-    var mainFish=c.fish.split(',')[0];
-    var html='<div class="cm-wrap"><div class="cm" style="width:'+sz+'px;height:'+sz+'px;font-size:'+fs+'px;">'
-      +'<span class="cm-n">'+c.n+'</span>'
-      +'<span class="cm-lbl">'+mainFish+'</span>'
-    +'</div></div>';
-    addOverlay(c.lat,c.lng,html,3,(function(cl){return function(){zoomToCluster(cl);};})(c));
+  if(CATCH_CLUSTERER){CATCH_CLUSTERER.clear();CATCH_CLUSTERER=null;}
+  clearBoatMarkers();
+  ALL_CATCH_MARKERS.forEach(function(m){m.setMap(null);});
+  ALL_CATCH_MARKERS=[];
+
+  CLUSTERS.forEach(function(cl){
+    var sz=cl.n>200?72:cl.n>60?58:cl.n>30?48:42;
+    var fs=cl.n>200?17:cl.n>60?15:13;
+    var outerSz=(sz+16)+'px';
+    var mainFish=cl.fish.split(',')[0];
+    var html='<div class="kc-wrap">'
+      +'<div class="kc-outer" style="width:'+outerSz+';height:'+outerSz+';"></div>'
+      +'<div class="kc-inner" style="width:'+sz+'px;height:'+sz+'px;font-size:'+fs+'px;">'
+        +'<span class="kc-n">'+cl.n+'</span>'
+        +'<span class="kc-lbl">'+mainFish+'</span>'
+      +'</div></div>';
+    addOverlay(cl.lat,cl.lng,html,3,(function(cll){return function(){zoomToCluster(cll);};})(cl));
   });
+
+  // 전국 선박 마커는 항상 표시 (클러스터링과 무관)
+  addBoatMarkersToMap();
 }
 
 var BOAT_MARKERS=[];
@@ -1025,7 +1155,8 @@ var BOAT_MARKERS=[];
 function clearBoatMarkers(){BOAT_MARKERS.forEach(function(m){m.setMap(null);});BOAT_MARKERS=[];}
 
 function addCatchMarkers(){
-  // Only catch markers - no boats mixed in
+  // Legacy / SVG mode only
+  if(USE_KAKAO){buildCatchClusterer();return;}
   clearMarkers();
   var catches=ALL_CATCHES['c'+G_CLUSTER_IDX]||CATCHES;
   catches.forEach(function(cc,i){
@@ -1036,333 +1167,154 @@ function addCatchMarkers(){
 }
 
 function addBoatMarkersToMap(){
+  // 선박 마커는 항상 전체 표시 (모든 zoom level)
+  if(!USE_KAKAO||!MAP)return;
   clearBoatMarkers();
-  // Show boats near current cluster (within ~2.5 degrees) + always at least 2
-  var cl=CLUSTERS[G_CLUSTER_IDX];
-  var near=cl?BOATS.filter(function(b){
-    return Math.abs(b.lat-cl.lat)<2.0&&Math.abs(b.lng-cl.lng)<3.0;
-  }):[];
-  // Always show at least 2 closest boats
-  if(near.length<2){
-    var sorted=BOATS.slice().sort(function(a,b){
-      if(!cl)return 0;
-      var da=Math.pow(a.lat-cl.lat,2)+Math.pow(a.lng-cl.lng,2);
-      var db=Math.pow(b.lat-cl.lat,2)+Math.pow(b.lng-cl.lng,2);
-      return da-db;
-    });
-    near=sorted.slice(0,3);
-  }
+  var near=BOATS; // 모든 선박 항상 표시
   near.forEach(function(b,i){
     var delay=(200+i*150)+'ms';
     var dot=b.id%2===1?'<div class="bm-dot"></div>':'';
-    var html='<div class="bm bm-anim" style="animation-delay:'+delay+';cursor:pointer;">'+ICO_ANCHOR+dot+'</div>';
+    // 선박 마커는 닻 아이콘 + 선박명 라벨
+    var bname=b.name.split(' ').slice(0,2).join(' ');
+    var html=
+      '<div style="cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;animation:markerDrop .4s cubic-bezier(.34,1.56,.64,1) '+delay+' both;">'
+        +'<div style="background:#1C3A6B;border:2.5px solid rgba(255,255,255,.9);border-radius:50%;width:42px;height:42px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(0,0,0,.35);position:relative;">'
+          +ICO_ANCHOR
+          +dot
+        +'</div>'
+        +'<div style="background:rgba(28,58,107,.92);color:#fff;font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;white-space:nowrap;backdrop-filter:blur(4px);">'+bname+'</div>'
+      +'</div>';
     var div=document.createElement('div');
     div.innerHTML=html;
     var el=div.firstElementChild;
-    el.addEventListener('click',(function(bb){return function(){openBoat(bb);};})(b));
-    var ov=new kakao.maps.CustomOverlay({position:mkLatLng(b.lat,b.lng),content:el,zIndex:5,yAnchor:0.5,xAnchor:0.5});
+    el.addEventListener('click',(function(bb){return function(){
+      // 다른 패널이 열려있으면 먼저 닫기
+      ['panel-catch','panel-boat'].forEach(function(pid){
+        document.getElementById(pid).classList.remove('open');
+      });
+      openBoat(bb);
+    };})(b));
+    var ov=new kakao.maps.CustomOverlay({position:mkLatLng(b.lat,b.lng),content:el,zIndex:6,yAnchor:1.1,xAnchor:0.5});
     ov.setMap(MAP);
     BOAT_MARKERS.push(ov);
   });
 }
 
 function addDetailMarkers(){
-  addCatchMarkers();
-  addBoatMarkersToMap();
+  if(USE_KAKAO){
+    buildCatchClusterer();
+    addBoatMarkersToMap();
+  } else {
+    addCatchMarkers();
+    addBoatMarkersToMap();
+  }
 }
 
 // ── 지도 조작 ──────────────────────────────────────────────────
 function zoomToCluster(cl){
   G.mode='detail';
-  G_CLUSTER_IDX=cl.cidx||3;
+  G_CLUSTER_IDX=cl.cidx!==undefined?cl.cidx:3;
   CATCHES=ALL_CATCHES['c'+G_CLUSTER_IDX]||ALL_CATCHES.c3;
   G.q=cl.fish.split(',')[0];
   document.getElementById('searchInput').value=G.q;
   toggleClearBtn();
   hideCTA();
-  // Stage 1: 클러스터 중심으로 이동
+  clearMarkers(); // 요약 오버레이 제거
+
   MAP.setCenter(mkLatLng(cl.lat,cl.lng));
-  // Stage 2: 레벨 8→6 부드럽게 줌인
   MAP.setLevel(8);
-  setTimeout(function(){MAP.setLevel(6,{animate:true});},50);
-  // Stage 3: 레벨 6→4로 추가 줌인 (개별 마커 나타날 시점)
+
+  // 2단계 줌인 (사용자가 확대되는 걸 눈으로 체감)
+  setTimeout(function(){MAP.setLevel(6,{animate:true});},80);
+  setTimeout(function(){MAP.setLevel(4,{animate:true});},800);
+
+  // 줌 완료 후 MarkerClusterer로 조과 마커 뿌리기
   setTimeout(function(){
-    MAP.setLevel(4,{animate:true});
-  },700);
-  // Stage 4: 줌 완료 후 조과 마커 scatter 등장 + 선박 마커
-  setTimeout(function(){
-    addCatchMarkers();   // 조과 마커만
-    addBoatMarkersToMap(); // 선박 마커 별도
-    showSheet(G.q);
-  },1400);
-}
-
-function onZoom(){
-  if(!MAP)return;
-  var lv=MAP.getLevel();
-  if(lv<=5&&G.mode==='korea'){
-    G.mode='detail';
-    addDetailMarkers();
-    if(G.q)showSheet(G.q);
-  } else if(lv>=7&&G.mode==='detail'){
-    G.mode='korea';
-    clearMarkers();
-    clearBoatMarkers();
-    addClusters();
-    hideSheet();
-    document.getElementById('searchInput').value='';
-    G.q='';
-    if(G.ctaOn){
-      var e=document.getElementById('cta');
-      e.style.cssText='opacity:1;display:flex;transform:none;';
-    }
-  }
-}
-
-function doSearch(){
-  var q=(document.getElementById('searchInput').value||'').trim();
-  G.q=q;
-  if(!q)return;
-  document.getElementById('searchInput').blur();
-
-  if(!USE_KAKAO){
-    // SVG 모드에서도 실제 조과 데이터 기반으로 최적 클러스터 찾기
-    var svgBestIdx=3,svgBestCnt=0;
-    ['c0','c1','c2','c3','c4','c5'].forEach(function(k,i){
-      var cnt=(ALL_CATCHES[k]||[]).filter(function(r){return r.fish.indexOf(q)!==-1;}).length;
-      if(cnt>svgBestCnt){svgBestCnt=cnt;svgBestIdx=i;}
-    });
-    if(svgBestCnt===0){for(var si=0;si<CLUSTERS.length;si++){if(CLUSTERS[si].fish.indexOf(q)!==-1){svgBestIdx=si;break;}}}
-    G_CLUSTER_IDX=svgBestIdx;
-    CATCHES=ALL_CATCHES['c'+svgBestIdx]||ALL_CATCHES.c3;
-    zoomSVG(CLUSTERS[svgBestIdx]);
-    return;
-  }
-
-  // 1) 전체 ALL_CATCHES에서 해당 어종이 가장 많은 클러스터 찾기
-  var bestIdx=3, bestCount=0;
-  var keys=['c0','c1','c2','c3','c4','c5'];
-  keys.forEach(function(k,i){
-    var arr=ALL_CATCHES[k]||[];
-    var cnt=arr.filter(function(r){return r.fish.indexOf(q)!==-1;}).length;
-    if(cnt>bestCount){bestCount=cnt;bestIdx=i;}
-  });
-  // 2) 없으면 cluster fish 문자열로 매칭
-  if(bestCount===0){
-    for(var i=0;i<CLUSTERS.length;i++){
-      if(CLUSTERS[i].fish.indexOf(q)!==-1){bestIdx=i;break;}
-    }
-  }
-
-  var tgt=CLUSTERS[bestIdx];
-  G.mode='detail';
-  G_CLUSTER_IDX=bestIdx;
-  CATCHES=ALL_CATCHES['c'+bestIdx]||ALL_CATCHES.c3;
-  hideCTA();
-  MAP.setCenter(mkLatLng(tgt.lat,tgt.lng));
-  MAP.setLevel(5,{animate:true});
-  MAP.setLevel(8);
-  setTimeout(function(){MAP.setLevel(6,{animate:true});},50);
-  setTimeout(function(){MAP.setLevel(4,{animate:true});},700);
-  setTimeout(function(){
-    addCatchMarkers();
+    buildCatchClusterer();
     addBoatMarkersToMap();
-    showSheet(q);
-  },1400);
+    showSheet(G.q);
+  },1600);
 }
 
-function quickSearch(f){
-  document.getElementById('searchInput').value=f;
-  G.q=f;
-  doSearch();
-}
+function buildCatchClusterer(){
+  if(!USE_KAKAO||!MAP)return;
 
-function resetMap(){
-  G.mode='korea';
-  G.q='';
-  document.getElementById('searchInput').value='';
-  hideSheet();
-  if(USE_KAKAO&&MAP){
-    clearMarkers();
-    clearBoatMarkers();
-    addClusters();
-    MAP.setCenter(mkLatLng(36.2,127.8));
-    MAP.setLevel(8,{animate:true});
-  } else {
-    resetSVGView();
-  }
-  if(G.ctaOn){
-    var e=document.getElementById('cta');
-    e.style.cssText='opacity:1;display:flex;transform:none;';
-  }
-}
+  // 기존 클러스터러/마커 완전 정리
+  if(CATCH_CLUSTERER){CATCH_CLUSTERER.clear();CATCH_CLUSTERER=null;}
+  ALL_CATCH_MARKERS.forEach(function(m){m.setMap(null);});
+  ALL_CATCH_MARKERS=[];
 
-// ── SVG FALLBACK ──────────────────────────────────────────────
-function svgKoreaMap(){
-  return '<svg id="ksvg" xmlns="http://www.w3.org/2000/svg" width="390" height="844" viewBox="0 0 390 844" style="position:absolute;top:0;left:0;transition:transform .5s cubic-bezier(.4,0,.2,1)">'
-    +'<rect width="390" height="844" fill="#b8d4e8"/>'
-    +'<path d="M195,55 L212,58 L230,54 L248,60 L262,70 L272,84 L276,100 L274,116 L278,132 L283,148 L280,166 L284,182 L288,198 L285,216 L290,232 L292,250 L288,268 L292,284 L296,300 L298,318 L295,336 L300,354 L302,372 L299,390 L303,408 L305,426 L301,444 L297,460 L292,476 L287,492 L281,508 L274,522 L267,536 L259,550 L250,562 L241,572 L232,580 L222,587 L212,592 L200,595 L188,592 L177,587 L167,579 L158,570 L149,558 L140,546 L132,532 L124,516 L117,500 L110,484 L104,468 L100,450 L96,434 L93,416 L91,398 L90,380 L93,362 L96,344 L99,326 L103,308 L106,290 L110,272 L114,256 L117,238 L114,220 L116,202 L120,186 L116,170 L114,154 L117,138 L122,124 L127,110 L133,97 L141,85 L152,74 L163,65 L177,58 Z" fill="#e8d5b0" stroke="#c4a96a" stroke-width="1.5"/>'
-    +'<ellipse cx="158" cy="726" rx="40" ry="22" fill="#e8d5b0" stroke="#c4a96a" stroke-width="1.5"/>'
-    +'<text x="48" y="380" text-anchor="middle" font-size="12" fill="#5a8aa8" font-style="italic" font-family="sans-serif">서해</text>'
-    +'<text x="342" y="380" text-anchor="middle" font-size="12" fill="#5a8aa8" font-style="italic" font-family="sans-serif">동해</text>'
-    +'<text x="195" y="660" text-anchor="middle" font-size="12" fill="#5a8aa8" font-style="italic" font-family="sans-serif">남해</text>'
-    +'<text x="200" y="108" text-anchor="middle" font-size="10" fill="#7a6a4a" font-weight="600" font-family="sans-serif">강원도</text>'
-    +'<text x="175" y="195" text-anchor="middle" font-size="10" fill="#7a6a4a" font-weight="600" font-family="sans-serif">경기도</text>'
-    +'<text x="152" y="290" text-anchor="middle" font-size="10" fill="#7a6a4a" font-weight="600" font-family="sans-serif">충청남도</text>'
-    +'<text x="138" y="400" text-anchor="middle" font-size="10" fill="#7a6a4a" font-weight="600" font-family="sans-serif">전북</text>'
-    +'<text x="252" y="396" text-anchor="middle" font-size="10" fill="#7a6a4a" font-weight="600" font-family="sans-serif">경상북도</text>'
-    +'<text x="144" y="496" text-anchor="middle" font-size="10" fill="#7a6a4a" font-weight="600" font-family="sans-serif">전라남도</text>'
-    +'<text x="258" y="490" text-anchor="middle" font-size="10" fill="#7a6a4a" font-weight="600" font-family="sans-serif">경상남도</text>'
-    +'<circle cx="180" cy="172" r="3" fill="#c4906a"/><text x="187" y="175" font-size="9" fill="#7a5a3a" font-family="sans-serif">서울</text>'
-    +'<circle cx="260" cy="432" r="3" fill="#c4906a"/><text x="267" y="435" font-size="9" fill="#7a5a3a" font-family="sans-serif">대구</text>'
-    +'<circle cx="280" cy="490" r="3" fill="#c4906a"/><text x="287" y="493" font-size="9" fill="#7a5a3a" font-family="sans-serif">부산</text>'
-    +'</svg>';
-}
+  var catches=ALL_CATCHES['c'+G_CLUSTER_IDX]||CATCHES;
 
-var SVG_CLUSTERS=[
-  {n:96,sx:124,sy:172,fish:'볼락,우럭,광어'},
-  {n:30,sx:86,sy:300,fish:'감성돔,볼락'},
-  {n:32,sx:93,sy:374,fish:'우럭,넙치'},
-  {n:287,sx:262,sy:458,fish:'전갱이,부시리,방어'},
-  {n:65,sx:193,sy:528,fish:'참돔,도다리'},
-  {n:36,sx:306,sy:444,fish:'대구,가자미'},
-];
-var SVG_CATCHES=[{idx:0,sx:146,sy:518},{idx:1,sx:166,sy:536},{idx:2,sx:134,sy:506},{idx:3,sx:153,sy:546}];
-var SVG_BOATS=[{idx:0,sx:140,sy:533},{idx:1,sx:160,sy:523}];
-var svgZoom={scale:1,tx:0,ty:0},svgMode='korea';
+  // MarkerClusterer용 실제 kakao.maps.Marker 생성
+  // 각 마커에 커스텀 아이콘 (낚싯대 SVG → MarkerImage)
+  var svgIcon=[
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 38 38" width="38" height="38">',
+    '<circle cx="19" cy="19" r="18" fill="#1A6BFF" stroke="white" stroke-width="2.5"/>',
+    '<line x1="10" y1="28" x2="26" y2="12" stroke="white" stroke-width="2.2" stroke-linecap="round"/>',
+    '<path d="M26 12 a1.5 1.5 0 0 1 1.5 1.5" stroke="white" stroke-width="1.5" fill="none" stroke-linecap="round"/>',
+    '<line x1="22" y1="16" x2="24" y2="18" stroke="white" stroke-width="1.8" stroke-linecap="round"/>',
+    '</svg>'
+  ].join('');
+  var svgB64='data:image/svg+xml;base64,'+btoa(unescape(encodeURIComponent(svgIcon)));
+  var markerImg=new kakao.maps.MarkerImage(svgB64,new kakao.maps.Size(38,38),{offset:new kakao.maps.Point(19,19)});
 
-function addSVGMarkers(){
-  var mapEl=document.getElementById('map');
-  var old=document.getElementById('svg-ov');if(old)old.remove();
-  var ov=document.createElement('div');
-  ov.id='svg-ov';
-  ov.style.cssText='position:absolute;inset:0;z-index:2;pointer-events:none;';
-  mapEl.appendChild(ov);
-  var svgList=svgMode==='korea'?SVG_CLUSTERS:CATCHES.map(function(ca,i){
-    // 현재 줌 중심 근처 픽셀 좌표 계산 (클러스터 중심 기준 분산)
-    var base=SVG_CLUSTERS[G_CLUSTER_IDX]||{sx:195,sy:422};
-    var offsets=[[-18,-22],[14,-15],[-22,8],[18,12],[0,-28],[24,-5],[-10,20],[20,-25]];
-    var o=offsets[i%offsets.length];
-    return {ca:ca,sx:base.sx+o[0],sy:base.sy+o[1]};
-  });
-  (svgMode==='korea'?SVG_CLUSTERS:svgList).forEach(function(c){
-    var isCluster=svgMode==='korea';
-    var sz=isCluster?(c.n>200?72:c.n>60?58:c.n>30?48:42):36;
-    var el=document.createElement('div');
-    var px=c.sx*svgZoom.scale+svgZoom.tx, py=c.sy*svgZoom.scale+svgZoom.ty;
-    if(isCluster){
-      var fs=c.n>200?17:c.n>60?15:13;
-      el.className='cm';
-      el.style.cssText='position:absolute;width:'+sz+'px;height:'+sz+'px;font-size:'+fs+'px;left:'+px+'px;top:'+py+'px;transform:translate(-50%,-50%);pointer-events:all;';
-      el.textContent=c.n;
-      el.addEventListener('click',(function(cl){return function(){zoomSVG(cl);};})(c));
-    } else {
-      var cc=c.ca||CATCHES[c.idx]||CATCHES[0];
-      el.style.cssText='position:absolute;left:'+px+'px;top:'+py+'px;transform:translate(-50%,-50%);pointer-events:all;cursor:pointer;';
-      el.innerHTML='<div class="dm dm-anim" style="animation-delay:'+(svgList.indexOf(c)*80)+'ms">'+ICO_ROD+'</div>';
-      el.addEventListener('click',(function(ccc){return function(){openCatch(ccc);};})(cc));
-    }
-    ov.appendChild(el);
-  });
-  if(svgMode==='detail'){
-    SVG_BOATS.forEach(function(sb){
-      var b=BOATS[sb.idx];
-      var dot=b.id===1?'<div class="bm-dot"></div>':'';
-      var el=document.createElement('div');
-      var px=sb.sx*svgZoom.scale+svgZoom.tx, py=sb.sy*svgZoom.scale+svgZoom.ty;
-      el.style.cssText='position:absolute;left:'+px+'px;top:'+py+'px;transform:translate(-50%,-50%);pointer-events:all;';
-      el.innerHTML='<div class="bm">'+ICO_ANCHOR+dot+'</div>';
-      el.addEventListener('click',(function(bb){return function(){openBoat(bb);};})(b));
-      ov.appendChild(el);
+  var kmList=[];
+  catches.forEach(function(cc){
+    var km=new kakao.maps.Marker({
+      position:mkLatLng(cc.lat,cc.lng),
+      image:markerImg,
+      clickable:true
     });
-  }
-}
+    kakao.maps.event.addListener(km,'click',(function(ccc){return function(){openCatch(ccc);};})(cc));
+    ALL_CATCH_MARKERS.push(km);
+    kmList.push(km);
+  });
 
-function zoomSVG(c){
-  svgMode='detail';G.mode='detail';
-  // cidx가 있으면 해당 클러스터 데이터, 없으면 fish로 검색
-  var cidx=c.cidx!==undefined?c.cidx:3;
-  G_CLUSTER_IDX=cidx;
-  CATCHES=ALL_CATCHES['c'+cidx]||ALL_CATCHES.c3;
-  // 검색어는 현재 입력값 우선, 없으면 클러스터 첫 어종
-  if(!G.q)G.q=c.fish.split(',')[0];
-  document.getElementById('searchInput').value=G.q;
-  toggleClearBtn();
-  hideCTA();
-  var scale=2.2;
-  svgZoom={scale:scale,tx:195-(c.sx||195)*scale,ty:390-(c.sy||422)*scale};
-  var svg=document.getElementById('ksvg');
-  if(svg)svg.style.transform='scale('+scale+') translate('+svgZoom.tx/scale+'px,'+svgZoom.ty/scale+'px)';
-  setTimeout(function(){addSVGMarkers();showSheet(G.q);},450);
-}
+  // MarkerClusterer — 줌 레벨에 따라 자동 클러스터/분리
+  CATCH_CLUSTERER=new kakao.maps.MarkerClusterer({
+    map:MAP,
+    markers:kmList,
+    averageCenter:true,
+    minLevel:3,          // 레벨 3 이하에서 개별 마커로 완전 분리
+    minClusterSize:2,
+    disableClickZoom:false,
+    styles:[
+      {  // 2~9개
+        width:'46px',height:'46px',
+        background:'radial-gradient(circle at 38% 32%,#4d8cff,#0038cc)',
+        borderRadius:'50%',border:'2.5px solid rgba(255,255,255,.92)',
+        color:'#fff',textAlign:'center',lineHeight:'46px',
+        fontWeight:'900',fontSize:'14px',fontFamily:"'Noto Sans KR',sans-serif",
+        boxShadow:'0 4px 14px rgba(26,107,255,.55)',
+      },
+      {  // 10~99개
+        width:'56px',height:'56px',
+        background:'radial-gradient(circle at 38% 32%,#3a7aff,#0028b8)',
+        borderRadius:'50%',border:'3px solid rgba(255,255,255,.94)',
+        color:'#fff',textAlign:'center',lineHeight:'56px',
+        fontWeight:'900',fontSize:'16px',fontFamily:"'Noto Sans KR',sans-serif",
+        boxShadow:'0 5px 18px rgba(26,107,255,.6)',
+      },
+      {  // 100+개
+        width:'68px',height:'68px',
+        background:'radial-gradient(circle at 38% 32%,#2a68ff,#0018a8)',
+        borderRadius:'50%',border:'3px solid rgba(255,255,255,.96)',
+        color:'#fff',textAlign:'center',lineHeight:'68px',
+        fontWeight:'900',fontSize:'19px',fontFamily:"'Noto Sans KR',sans-serif",
+        boxShadow:'0 6px 22px rgba(26,107,255,.65)',
+      },
+    ]
+  });
 
-function resetSVGView(){
-  svgMode='korea';svgZoom={scale:1,tx:0,ty:0};
-  var svg=document.getElementById('ksvg');
-  if(svg)svg.style.transform='none';
-  addSVGMarkers();
-}
-
-// ── RESULT SHEET ──────────────────────────────────────────────
-function showSheet(q){
-  renderSheet(q);
-  document.getElementById('sheet').classList.add('open');
-}
-function hideSheet(){document.getElementById('sheet').classList.remove('open');}
-
-function renderSheet(q){
-  var list=CATCHES;
-  if(q){var f=CATCHES.filter(function(c){return c.fish.indexOf(q)!==-1;});list=f.length>0?f:CATCHES;}
-  var cluster=CLUSTERS[G_CLUSTER_IDX];
-  var regionLabel=cluster?cluster.region:'전국';
-  var agoArr=['방금전','5분 전','21분 전','47분 전','1시간 전','2시간 전','3시간 전','5시간 전'];
-  document.getElementById('sheet-list').innerHTML=
-    '<div style="padding:10px 16px 6px;display:flex;align-items:center;justify-content:space-between;">'
-      +'<div style="font-size:13px;font-weight:700;color:var(--text);">'+regionLabel+' 최근 조과 <span style="color:var(--blue);">'+list.length+'건</span></div>'
-      +'<div style="font-size:11px;color:var(--muted);">최신순</div>'
-    +'</div>'
-    +list.map(function(c,i){
-      var ci=CATCHES.indexOf(c);
-      var ago=agoArr[Math.min(i,agoArr.length-1)];
-      return '<div class="ritem" onclick="openCatch(CATCHES['+ci+'])">'
-        +'<div class="rthumb" style="overflow:hidden;position:relative;background:#1e3a5a;">'+getFishThumb(c.fish)
-          +(i<2?'<div style="position:absolute;bottom:2px;left:2px;background:#FF3B30;border-radius:4px;padding:1px 5px;font-size:9px;color:#fff;font-weight:700;">NEW</div>':'')
-        +'</div>'
-        +'<div class="rinfo">'
-          +'<div class="rname">'+c.fish+' <span>'+c.angler+'</span></div>'
-          +'<div class="rsub">'+c.date+' · '+c.loc+'</div>'
-          +'<div style="display:flex;align-items:center;gap:8px;margin-top:3px;">'
-            +'<span style="font-size:11px;color:var(--sub);">'+c.size+' · '+c.count+'마리</span>'
-            +'<span style="font-size:10px;color:var(--muted);">'+ago+'</span>'
-          +'</div>'
-        +'</div>'
-        +'<div class="fav'+(c.starred?' on':'')+'" id="fav'+ci+'" onclick="event.stopPropagation();toggleStar('+ci+')">'
-          +'<svg viewBox="0 0 24 24" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>'
-        +'</div>'
-      +'</div>';
-    }).join('');
-}
-
-function toggleStar(i){
-  CATCHES[i].starred=!CATCHES[i].starred;
-  var el=document.getElementById('fav'+i);
-  if(el)el.classList.toggle('on',CATCHES[i].starred);
-}
-
-function hideCTA(){
-  var el=document.getElementById('cta');
-  el.style.opacity='0';el.style.transform='translateY(10px)';
-  setTimeout(function(){el.style.display='none';},300);
-  G.ctaOn=false;
-}
-
-function toggleFav(){
-  var s=document.getElementById('fav-svg');
-  if(s.getAttribute('fill')==='none'){
-    s.setAttribute('fill','#FFC300');s.setAttribute('stroke','#E6A800');showToast('즐겨찾기에 추가됨');
-  } else {
-    s.setAttribute('fill','none');s.setAttribute('stroke','var(--sub)');showToast('즐겨찾기 해제됨');
-  }
+  // 클러스터 클릭 → 해당 중심으로 추가 줌인
+  kakao.maps.event.addListener(CATCH_CLUSTERER,'clusterclick',function(cluster){
+    var lv=MAP.getLevel();
+    if(lv>2){
+      MAP.setCenter(cluster.getCenter());
+      MAP.setLevel(Math.max(2,lv-2),{animate:true});
+    }
+  });
 }
 
 // ── CATCH PANEL ───────────────────────────────────────────────
@@ -1442,7 +1394,8 @@ function openCatch(c){
 
 // ── BOAT SHEET ────────────────────────────────────────────────
 function openBoat(b){
-  // Boat marker click → bottom sheet quick modal
+  // 먼저 다른 패널/모달 정리
+  closeBoat(); // 혹시 이미 열린 bsheet 있으면 닫기
   G.selBoat=b;
   var TSVG='<svg viewBox="0 0 32 32" fill="none" width="14" height="14"><rect x="2" y="4" width="28" height="8" rx="2" fill="#FF4DBB"/><path d="M13 12 Q19 12 19 18 L19 28 L13 28 Z" fill="#4169FF"/></svg>';
   document.getElementById('bsheet').innerHTML=
@@ -1519,13 +1472,17 @@ function openBoatPanel(b){
 function closeBoat(){
   document.getElementById('b-overlay').classList.remove('on');
   document.getElementById('bsheet').classList.remove('open');
+  document.getElementById('bsheet').innerHTML='';
 }
-// Ensure overlay closes when panel-boat is closed
+
 function closePanel(id){
   document.getElementById(id).classList.remove('open');
-  // Always close bsheet/overlay when any panel closes (prevents ghost modal)
-  document.getElementById('b-overlay').classList.remove('on');
-  document.getElementById('bsheet').classList.remove('open');
+  // Only close bsheet for boat-related panels
+  if(id==='panel-boat'||id==='panel-catch'||id==='panel-final'||id==='panel-pref'||id==='panel-loading'){
+    document.getElementById('b-overlay').classList.remove('on');
+    document.getElementById('bsheet').classList.remove('open');
+    document.getElementById('bsheet').innerHTML='';
+  }
 }
 
 
@@ -1539,8 +1496,10 @@ var TIDE_CLS=['good','ok','good','good','bad','ok','good'];
 var CHECKLIST=['낚싯대','릴','낚시 채비','루어·미끼','아이스박스','구명조끼','멀미약','선크림','우비·방풍복','여분 의류','간식·음료','신분증'];
 
 function startPref(){
+  closeBoat(); // bsheet 완전히 닫기
   G.pref={step:1,date:null,people:null,level:null,stay:null,stayType:null,food:null,foodType:null};
-  renderPref();openPanel('panel-pref');
+  renderPref();
+  openPanel('panel-pref');
 }
 function prefBack(){if(G.pref.step>1){G.pref.step--;renderPref();}else closePanel('panel-pref');}
 function prefNext(){
@@ -1877,6 +1836,7 @@ function savePlan(){
   SAVED_PLANS.unshift(plan);
   // Close final panel and show saved toast with link
   closePanel('panel-final');
+  closeBoat();
   showToast('📅 플랜이 저장되었습니다!');
   renderSavedPlans();
 }
